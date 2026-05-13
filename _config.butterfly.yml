@@ -19,8 +19,7 @@ nav:
 
 menu:
    Home: / || fas fa-home
-   近况随笔: /categories/近况随笔/ || fas fa-pen
-   哲学小思: /categories/近况随笔/ || fas fa-book
+   哲学小思: /categories/哲学小思/ || fas fa-book
   # List||fas fa-list:
   #   Music: /music/ || fas fa-music
   #   Movie: /movies/ || fas fa-video
