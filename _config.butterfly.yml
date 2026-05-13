@@ -52,11 +52,11 @@ social:
 # Image Settings
 # --------------------------------------
 
-favicon: /img/favicon.png
+favicon: /img/bg/Van_Gogh_-_Starry_Night.jpg
 
 avatar:
-  img: /img/butterfly-icon.png
-  effect: false
+  img: /img/avatar.jpg
+  effect: true
 
 # Disable all banner images
 disable_top_img: false
@@ -93,6 +93,12 @@ footer_img: false
 # Can set it to color, image URL or an array containing colors and/or image URLs
 # If an array is provided, a random background will be selected from the array on each load
 background:
+  - /img/bg/Starry_Night_Over_the_Rhone.jpg
+  - /img/bg/Cafe Terrace in Arles at Night.jpg
+  - /img/bg/Van_Gogh_-_Starry_Night.jpg
+  - /img/bg/Blossoming Almond Tree.jpg
+  - /img/bg/Seascape at Saintes-Maries2.jpg
+  - /img/bg/Two Cut Sunflowers.jpg
 
 cover:
   # Disable the cover or not
