@@ -22,6 +22,8 @@ menu:
    哲小思: /categories/哲小思/ || fas fa-book
    近况随笔: /categories/近况随笔/ || fas fa-pen
    我的书架: /bookshelf/ || fas fa-bookmark
+   教学资料: /materials/ || fas fa-lock
+   教程分享: /categories/教程分享/ || fas fa-graduation-cap
 
 # --------------------------------------
 # Code Blocks Settings
