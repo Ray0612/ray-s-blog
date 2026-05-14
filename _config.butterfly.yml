@@ -634,8 +634,8 @@ facebook_comments:
 # Twikoo
 # https://github.com/imaegoo/twikoo
 twikoo:
-  envId: https://comment.ray2.asia
-  region: ap-east-1
+  envId: comment.ray2.asia
+  region:
   # Use Twikoo visitor count as the page view count
   visitor: false
   option:
