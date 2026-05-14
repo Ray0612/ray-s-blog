@@ -12,3 +12,5 @@
 .tk-input-image { display: none !important; }
 /* 隐藏预览按钮 */
 .tk-preview { display: none !important; }
+/* 隐藏 Markdown 语法指南 (M 图标) */
+a[href*="guides.github.com"] { display: none !important; }
