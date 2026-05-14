@@ -1,28 +1,27 @@
-// 自定义评论系统
+// 自定义评论系统 - 完全原创
 (function(){
 var API = 'https://comment.ray2.asia';
-var wrap = document.getElementById('twikoo-wrap');
-if (!wrap) return;
 
-// 替换 Twikoo 内容为我们的评论系统
-var url = window.location.pathname;
+function buildUI(list) {
+  var html = '<div class="my-cmt-list">';
+  if (!list.length) {
+    html += '<p style="color:var(--text-meta,#999);font-size:.9rem;text-align:center;padding:20px 0">暂无评论，来说两句吧</p>';
+  } else {
+    list.forEach(function(c){
+      var d = new Date(c.created_at);
+      html += '<div class="my-cmt"><div class="my-cmt-nick">' + esc(c.nick) + '</div><div class="my-cmt-time">' + d.toLocaleString() + '</div><div class="my-cmt-text">' + esc(c.content).replace(/\n/g,'<br>') + '</div></div>';
+    });
+  }
+  html += '</div>';
+  html += '<div class="my-cmt-form"><input id="my-cmt-nick" placeholder="昵称" maxlength="20"><textarea id="my-cmt-input" placeholder="说点什么..." rows="3" maxlength="2000"></textarea><button id="my-cmt-btn" onclick="_submitCmt()">发表评论</button></div>';
+  return html;
+}
 
-function load() {
-  fetch(API + '/api/comments?url=' + encodeURIComponent(url))
+function load(container) {
+  fetch(API + '/api/comments?url=' + encodeURIComponent(window.location.pathname))
     .then(function(r){return r.json()})
     .then(function(list){
-      var html = '<div class="my-cmt-list">';
-      if (!list.length) {
-        html += '<p style="color:var(--text-meta,#999);font-size:.9rem;text-align:center;padding:20px 0">暂无评论，来说两句吧</p>';
-      } else {
-        list.forEach(function(c){
-          var d = new Date(c.created_at);
-          html += '<div class="my-cmt"><div class="my-cmt-nick">' + esc(c.nick) + '</div><div class="my-cmt-time">' + d.toLocaleString() + '</div><div class="my-cmt-text">' + esc(c.content).replace(/\n/g,'<br>') + '</div></div>';
-        });
-      }
-      html += '</div>';
-      html += '<div class="my-cmt-form"><input id="my-cmt-nick" placeholder="昵称" maxlength="20"><textarea id="my-cmt-input" placeholder="说点什么..." rows="3" maxlength="2000"></textarea><button id="my-cmt-btn" onclick="_submitCmt()">发表评论</button></div>';
-      wrap.innerHTML = html;
+      container.innerHTML = buildUI(list);
     });
 }
 
@@ -36,9 +35,9 @@ window._submitCmt = function() {
   fetch(API + '/api/comments', {
     method: 'POST',
     headers: {'Content-Type': 'application/json'},
-    body: JSON.stringify({nick: nick, content: content, url: url})
+    body: JSON.stringify({nick: nick, content: content, url: window.location.pathname})
   }).then(function(r){return r.json()}).then(function(d){
-    if (d.success) load();
+    if (d.success) load(btn.closest('.my-cmt-form').parentNode);
     else alert(d.error || '提交失败');
   }).catch(function(){alert('网络错误')})
   .finally(function(){btn.disabled = false; btn.textContent = '发表评论';});
@@ -48,5 +47,15 @@ function esc(s) {
   return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
-load();
+// 等待 #twikoo-wrap 出现后替换内容
+var observer = new MutationObserver(function() {
+  var wrap = document.getElementById('twikoo-wrap');
+  if (wrap) {
+    // 移除 Twikoo 加载的脚本
+    wrap.innerHTML = '<p style="text-align:center;color:#999;padding:10px">⏳ 加载评论区...</p>';
+    load(wrap);
+    observer.disconnect();
+  }
+});
+observer.observe(document.body, { childList: true, subtree: true });
 })();
