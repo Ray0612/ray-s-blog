@@ -1074,6 +1074,7 @@ inject:
     - <link rel="stylesheet" href="/css/custom.css">
     - <link rel="stylesheet" href="/css/comments.css">
   bottom:
+    - <script src="/js/init-comments.js"></script>
     - <script src="/js/comments.js"></script>
 
 # CDN Settings
