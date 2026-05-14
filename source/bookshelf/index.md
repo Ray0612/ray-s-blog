@@ -23,7 +23,7 @@ date: 2026-05-14
 
 </div>
 
-<h2 class="shelf-title">📖 已读书目</h2>
+<h2 class="shelf-title">📕 已读书目</h2>
 <div class="book-grid">
 
   <!-- ===== 正在读 ===== -->
