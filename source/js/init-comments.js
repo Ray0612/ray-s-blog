@@ -2,7 +2,8 @@
 (function(){
 var inner = document.getElementById('content-inner');
 if (!inner) return;
-if (inner.querySelector('#pagination')) return; // 首页不显示
+// 首页有 recent-posts，文章页没有
+if (inner.querySelector('#recent-posts')) return;
 if (document.getElementById('my-comments')) return;
 var div = document.createElement('div');
 div.id = 'post-comment';
