@@ -3,9 +3,9 @@
 var API = 'https://comment.ray2.asia';
 var url = window.location.pathname;
 
-// 只在文章页运行
+// 不在首页显示
 var inner = document.getElementById('content-inner');
-if (!inner || !document.querySelector('.post')) return;
+if (!inner || inner.classList.contains('recent-posts')) return;
 
 // 创建评论区
 var box = document.createElement('div');
@@ -25,10 +25,7 @@ function load() {
         html += '<div class="my-cmt"><div class="my-cmt-nick">' + esc(c.nick) + '</div><div class="my-cmt-time">' + d.toLocaleString() + '</div><div class="my-cmt-text">' + esc(c.content).replace(/\n/g,'<br>') + '</div></div>';
       });
       if (!html) html = '<p style="text-align:center;color:var(--text-meta,#999);padding:20px 0;font-size:.9rem">暂无评论</p>';
-      wrap.innerHTML = '<div class="my-cmt-list">' + html + '</div>' +
-        '<div class="my-cmt-form"><input id="my-cmt-nick" placeholder="昵称" maxlength="20">' +
-        '<textarea id="my-cmt-input" placeholder="说点什么..." rows="3" maxlength="2000"></textarea>' +
-        '<button id="my-cmt-btn" onclick="submitCmt()">发表评论</button></div>';
+      wrap.innerHTML = '<div class="my-cmt-list">' + html + '</div><div class="my-cmt-form" style="margin-top:16px"><input id="my-cmt-nick" placeholder="昵称" maxlength="20"><textarea id="my-cmt-input" placeholder="说点什么..." rows="3" maxlength="2000"></textarea><button id="my-cmt-btn" onclick="submitCmt()">发表评论</button></div>';
     }).catch(function(){
       wrap.innerHTML = '<p style="text-align:center;color:var(--text-meta,#999);padding:20px 0;font-size:.9rem">加载失败</p>';
     });
