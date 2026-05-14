@@ -546,7 +546,7 @@ comments:
   # Leave it empty if you don't need comments
   # Choose: Disqus/Disqusjs/Livere/Gitalk/Valine/Waline/Utterances/Facebook Comments/Twikoo/Giscus/Remark42/Artalk
   # Format of two comments system : Disqus,Waline
-  use: Twikoo
+  use:
   # Display the comment name next to the button
   text: true
   # Lazyload: The comment system will be load when comment element enters the browser's viewport.
@@ -1072,9 +1072,9 @@ css_prefix: true
 inject:
   head:
     - <link rel="stylesheet" href="/css/custom.css">
-    - <style>.tk-admin-actions,.tk-input-image,.tk-actions,.OwO-item:nth-child(21),.OwO-item:nth-child(24),.OwO-item:nth-child(26),.OwO-item:nth-child(27),.OwO-item:nth-child(28){display:none!important}</style>
-    - <script src="/js/clean-comments.js"></script>
+    - <link rel="stylesheet" href="/css/comments.css">
   bottom:
+    - <script src="/js/comments.js"></script>
 
 # CDN Settings
 # Don't modify the following settings unless you know how they work
