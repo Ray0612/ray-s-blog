@@ -1,0 +1,8 @@
+#footer, #footer .footer-other, #footer .footer-copyright {
+  background-color: var(--card-bg) !important;
+  color: var(--text-color) !important;
+  border-top: none !important;
+}
+#footer a {
+  color: var(--theme-color) !important;
+}
