@@ -201,4 +201,10 @@ function checkPwd() {
     document.getElementById('errMsg').style.display = 'block';
   }
 }
+// docx/pptx 使用微软 Office 在线预览
+document.querySelectorAll('.chapter-card a[href$=".docx"], .chapter-card a[href$=".pptx"]').forEach(a => {
+  let url = a.href;
+  a.href = 'https://view.officeapps.live.com/op/view.aspx?src=' + encodeURIComponent(url);
+  a.target = '_blank';
+});
 </script>
