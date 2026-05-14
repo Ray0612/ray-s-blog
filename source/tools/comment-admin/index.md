@@ -1,6 +1,7 @@
 ---
 title: 评论管理
 date: 2026-05-14
+comments: false
 ---
 
 <link rel="stylesheet" href="/css/tools.css">

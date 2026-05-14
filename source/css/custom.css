@@ -8,7 +8,3 @@
 }
 /* 隐藏评论区小齿轮 */
 .tk-admin { display: none !important; }
-/* 隐藏图片上传按钮 */
-.tk-toolbar .tk-upload { display: none !important; }
-/* 隐藏预览/格式切换按钮 */
-.tk-toolbar .tk-preview { display: none !important; }
