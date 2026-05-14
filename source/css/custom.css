@@ -6,3 +6,5 @@
 #footer a {
   color: var(--theme-color) !important;
 }
+/* 隐藏评论区小齿轮 */
+.tk-admin { display: none !important; }
