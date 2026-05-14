@@ -19,7 +19,11 @@ nav:
 
 menu:
    Home: / || fas fa-home
-   哲小思: /categories/哲小思/ || fas fa-book
+   哲小思||fas fa-book:
+     个人叙事: /categories/哲小思/个人叙事/ || fas fa-feather
+     读加缪: /categories/哲小思/读加缪/ || fas fa-book-open
+     读尼采: /categories/哲小思/读尼采/ || fas fa-book-open
+     杂谈: /categories/哲小思/杂谈/ || fas fa-comment
    近况随笔: /categories/近况随笔/ || fas fa-pen
    我的书架: /bookshelf/ || fas fa-bookmark
    教学资料: /materials/ || fas fa-lock
