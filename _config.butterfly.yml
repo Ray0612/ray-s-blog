@@ -1073,7 +1073,6 @@ inject:
   head:
     - <link rel="stylesheet" href="/css/custom.css">
   bottom:
-    - <script>document.addEventListener('click',function f(){var tb=document.querySelector('.tk-toolbar');if(tb){tb.querySelector('.tk-upload')&&tb.querySelector('.tk-upload').remove();tb.querySelector('.tk-preview')&&tb.querySelector('.tk-preview').remove();document.removeEventListener('click',f)}})</script>
     # - <script src="xxxx"></script>
 
 # CDN Settings
