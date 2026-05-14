@@ -21,6 +21,7 @@ menu:
    Home: / || fas fa-home
    哲小思||fas fa-book:
      个人叙事: /categories/哲小思/个人叙事/ || fas fa-feather
+     存在的结构: /categories/哲小思/个人叙事/第一部分：存在的结构/ || fas fa-folder-open
      读加缪: /categories/哲小思/读加缪/ || fas fa-book-open
      读尼采: /categories/哲小思/读尼采/ || fas fa-book-open
      杂谈: /categories/哲小思/杂谈/ || fas fa-comment
