@@ -7,4 +7,8 @@
   color: var(--theme-color) !important;
 }
 /* 隐藏评论区小齿轮 */
-.tk-admin { display: none !important; }
+.tk-admin-actions { display: none !important; }
+/* 隐藏图片上传按钮 */
+.tk-input-image { display: none !important; }
+/* 隐藏预览按钮 */
+.tk-preview { display: none !important; }
