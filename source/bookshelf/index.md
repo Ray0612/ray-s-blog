@@ -7,10 +7,10 @@ date: 2026-05-14
 
 <div class="bookshelf-page">
 
-<h2 class="shelf-title">📖 已读书目</h2>
+<h2 class="shelf-title">📖 正在读</h2>
 <div class="book-grid">
 
-  <!-- ===== 已读书目 ===== -->
+  <!-- ===== 正在读 ===== -->
   <div class="book-card">
     <div class="book-cover">
       <img src="/img/books/placeholder.jpg" alt="书名">
@@ -21,11 +21,9 @@ date: 2026-05-14
     </div>
   </div>
 
-  <!-- 复制上面的区块添加更多书 -->
-
 </div>
 
-<h2 class="shelf-title">📖 正在读</h2>
+<h2 class="shelf-title">📖 已读书目</h2>
 <div class="book-grid">
 
   <!-- ===== 正在读 ===== -->
