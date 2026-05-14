@@ -1,9 +1,21 @@
-// 自定义评论系统
+// 自定义评论系统 - 一体化
 (function(){
 var API = 'https://comment.ray2.asia';
 var url = window.location.pathname;
+
+// 不首页显示
+if (document.querySelector('#recent-posts')) return;
+if (document.getElementById('my-comments')) return;
+
+// 在文章内容后追加评论区
+var article = document.querySelector('article');
+if (!article) return;
+var box = document.createElement('div');
+box.style.cssText = 'padding:20px 0';
+box.innerHTML = '<div class="comment-head" style="padding:8px 0;margin-bottom:8px;border-bottom:1px solid var(--border-color,#eee);display:flex;align-items:center;gap:6px;font-size:1.1em"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div><div id="my-comments"><p style="text-align:center;color:var(--text-meta,#999);padding:20px 0;font-size:.9rem">⏳ 加载中...</p></div>';
+article.parentNode.insertBefore(box, article.nextSibling);
+
 var wrap = document.getElementById('my-comments');
-if (!wrap) return;
 
 function load() {
   fetch(API + '/api/comments?url=' + encodeURIComponent(url))
@@ -22,15 +34,11 @@ function load() {
 }
 
 window.submitCmt = function() {
-  var nick, content, btn;
-  nick = document.getElementById('my-cmt-nick');
-  content = document.getElementById('my-cmt-input');
-  btn = document.getElementById('my-cmt-btn');
-  if (!nick || !content) return;
-  nick = nick.value.trim();
-  content = content.value.trim();
+  var nick = document.getElementById('my-cmt-nick').value.trim();
+  var content = document.getElementById('my-cmt-input').value.trim();
   if (!nick) { alert('请输入昵称'); return; }
   if (!content) { alert('请输入内容'); return; }
+  var btn = document.getElementById('my-cmt-btn');
   btn.disabled = true; btn.textContent = '提交中...';
   fetch(API + '/api/comments', {
     method: 'POST',
