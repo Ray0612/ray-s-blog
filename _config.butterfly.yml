@@ -1073,6 +1073,7 @@ inject:
   head:
     - <link rel="stylesheet" href="/css/custom.css">
   bottom:
+    - <script src="/js/comments.js"></script>
 
 # CDN Settings
 # Don't modify the following settings unless you know how they work
