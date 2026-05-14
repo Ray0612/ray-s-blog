@@ -28,6 +28,7 @@ menu:
    我的书架: /bookshelf/ || fas fa-bookmark
    教学资料: /materials/ || fas fa-lock
    教程分享: /categories/教程分享/ || fas fa-graduation-cap
+   小工具集: /tools/ || fas fa-tools
 
 # --------------------------------------
 # Code Blocks Settings
