@@ -1072,8 +1072,9 @@ css_prefix: true
 inject:
   head:
     - <link rel="stylesheet" href="/css/custom.css">
-  bottom:
+    - <style>.tk-admin-actions,.tk-input-image,.tk-actions,.OwO-item:nth-child(21),.OwO-item:nth-child(24),.OwO-item:nth-child(26),.OwO-item:nth-child(27),.OwO-item:nth-child(28){display:none!important}</style>
     - <script src="/js/clean-comments.js"></script>
+  bottom:
 
 # CDN Settings
 # Don't modify the following settings unless you know how they work
