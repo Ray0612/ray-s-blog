@@ -1,31 +1,40 @@
-// 自定义评论系统 - 完全原创
+// 自定义评论系统
 (function(){
 var API = 'https://comment.ray2.asia';
+var url = window.location.pathname;
 
-function buildUI(list) {
-  var html = '<div class="my-cmt-list">';
-  if (!list.length) {
-    html += '<p style="color:var(--text-meta,#999);font-size:.9rem;text-align:center;padding:20px 0">暂无评论，来说两句吧</p>';
-  } else {
-    list.forEach(function(c){
-      var d = new Date(c.created_at);
-      html += '<div class="my-cmt"><div class="my-cmt-nick">' + esc(c.nick) + '</div><div class="my-cmt-time">' + d.toLocaleString() + '</div><div class="my-cmt-text">' + esc(c.content).replace(/\n/g,'<br>') + '</div></div>';
-    });
-  }
-  html += '</div>';
-  html += '<div class="my-cmt-form"><input id="my-cmt-nick" placeholder="昵称" maxlength="20"><textarea id="my-cmt-input" placeholder="说点什么..." rows="3" maxlength="2000"></textarea><button id="my-cmt-btn" onclick="_submitCmt()">发表评论</button></div>';
-  return html;
-}
+// 只在文章页运行
+var inner = document.getElementById('content-inner');
+if (!inner || !document.querySelector('.post')) return;
 
-function load(container) {
-  fetch(API + '/api/comments?url=' + encodeURIComponent(window.location.pathname))
+// 创建评论区
+var box = document.createElement('div');
+box.id = 'post-comment';
+box.innerHTML = '<div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div></div><div class="comment-wrap"><div id="my-comments"><p style="text-align:center;color:var(--text-meta,#999);padding:20px 0;font-size:.9rem">⏳ 加载中...</p></div></div>';
+inner.appendChild(box);
+
+var wrap = document.getElementById('my-comments');
+
+function load() {
+  fetch(API + '/api/comments?url=' + encodeURIComponent(url))
     .then(function(r){return r.json()})
     .then(function(list){
-      container.innerHTML = buildUI(list);
+      var html = '';
+      list.forEach(function(c){
+        var d = new Date(c.created_at);
+        html += '<div class="my-cmt"><div class="my-cmt-nick">' + esc(c.nick) + '</div><div class="my-cmt-time">' + d.toLocaleString() + '</div><div class="my-cmt-text">' + esc(c.content).replace(/\n/g,'<br>') + '</div></div>';
+      });
+      if (!html) html = '<p style="text-align:center;color:var(--text-meta,#999);padding:20px 0;font-size:.9rem">暂无评论</p>';
+      wrap.innerHTML = '<div class="my-cmt-list">' + html + '</div>' +
+        '<div class="my-cmt-form"><input id="my-cmt-nick" placeholder="昵称" maxlength="20">' +
+        '<textarea id="my-cmt-input" placeholder="说点什么..." rows="3" maxlength="2000"></textarea>' +
+        '<button id="my-cmt-btn" onclick="submitCmt()">发表评论</button></div>';
+    }).catch(function(){
+      wrap.innerHTML = '<p style="text-align:center;color:var(--text-meta,#999);padding:20px 0;font-size:.9rem">加载失败</p>';
     });
 }
 
-window._submitCmt = function() {
+window.submitCmt = function() {
   var nick = document.getElementById('my-cmt-nick').value.trim();
   var content = document.getElementById('my-cmt-input').value.trim();
   if (!nick) { alert('请输入昵称'); return; }
@@ -35,9 +44,9 @@ window._submitCmt = function() {
   fetch(API + '/api/comments', {
     method: 'POST',
     headers: {'Content-Type': 'application/json'},
-    body: JSON.stringify({nick: nick, content: content, url: window.location.pathname})
+    body: JSON.stringify({nick: nick, content: content, url: url})
   }).then(function(r){return r.json()}).then(function(d){
-    if (d.success) load(btn.closest('.my-cmt-form').parentNode);
+    if (d.success) load();
     else alert(d.error || '提交失败');
   }).catch(function(){alert('网络错误')})
   .finally(function(){btn.disabled = false; btn.textContent = '发表评论';});
@@ -47,15 +56,5 @@ function esc(s) {
   return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
-// 等待 #twikoo-wrap 出现后替换内容
-var observer = new MutationObserver(function() {
-  var wrap = document.getElementById('twikoo-wrap');
-  if (wrap) {
-    // 移除 Twikoo 加载的脚本
-    wrap.innerHTML = '<p style="text-align:center;color:#999;padding:10px">⏳ 加载评论区...</p>';
-    load(wrap);
-    observer.disconnect();
-  }
-});
-observer.observe(document.body, { childList: true, subtree: true });
+load();
 })();
