@@ -11,6 +11,12 @@ date: 2026-05-14
   <div class="tool-desc">上传文字生成提取码，5分钟有效，端对端传输</div>
 </a>
 
+<a href="/tools/comment-admin/" class="tool-card">
+  <div class="tool-icon">📋</div>
+  <div class="tool-name">评论管理</div>
+  <div class="tool-desc">查看和删除博客评论</div>
+</a>
+
 <!-- 以后更多工具可以加在这里 -->
 
 </div>
