@@ -1,31 +1,28 @@
 // 自定义评论系统
 (function(){
 var API = 'https://comment.ray2.asia';
-// 只在文章页运行
-var postCmt = document.getElementById('post-comment');
-if (!postCmt) return;
+var wrap = document.getElementById('twikoo-wrap');
+if (!wrap) return;
 
-// 创建评论容器
-var wrap = document.createElement('div');
-wrap.id = 'my-comments';
-postCmt.querySelector('.comment-wrap').appendChild(wrap);
-
+// 替换 Twikoo 内容为我们的评论系统
 var url = window.location.pathname;
 
 function load() {
   fetch(API + '/api/comments?url=' + encodeURIComponent(url))
     .then(function(r){return r.json()})
     .then(function(list){
-      var html = '';
+      var html = '<div class="my-cmt-list">';
       if (!list.length) {
-        html = '<p style="color:var(--text-meta,#999);font-size:.9rem;text-align:center;padding:20px">暂无评论，来说两句吧</p>';
+        html += '<p style="color:var(--text-meta,#999);font-size:.9rem;text-align:center;padding:20px 0">暂无评论，来说两句吧</p>';
       } else {
         list.forEach(function(c){
           var d = new Date(c.created_at);
           html += '<div class="my-cmt"><div class="my-cmt-nick">' + esc(c.nick) + '</div><div class="my-cmt-time">' + d.toLocaleString() + '</div><div class="my-cmt-text">' + esc(c.content).replace(/\n/g,'<br>') + '</div></div>';
         });
       }
-      wrap.innerHTML = '<div class="my-cmt-list">' + html + '</div><div class="my-cmt-form"><input id="my-cmt-nick" placeholder="昵称" maxlength="20" style="max-width:300px"><textarea id="my-cmt-input" placeholder="说点什么..." rows="3" maxlength="2000"></textarea><button id="my-cmt-btn" onclick="_submitCmt()" style="padding:8px 24px;background:var(--theme-color,#425aef);color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:.9rem">发表评论</button></div>';
+      html += '</div>';
+      html += '<div class="my-cmt-form"><input id="my-cmt-nick" placeholder="昵称" maxlength="20"><textarea id="my-cmt-input" placeholder="说点什么..." rows="3" maxlength="2000"></textarea><button id="my-cmt-btn" onclick="_submitCmt()">发表评论</button></div>';
+      wrap.innerHTML = html;
     });
 }
 
