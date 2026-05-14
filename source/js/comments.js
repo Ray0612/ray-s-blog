@@ -228,9 +228,12 @@ function submitCmt() {
 }
 
 function loadCmt() {
+  wrap.innerHTML = '<div class="rc-loading">⏳ 加载中...</div>';
   fetch(API + '/api/comments?url=' + encodeURIComponent(url))
     .then(function(r){return r.json()}).then(function(list){
-      if (document.getElementById('rc-list')) renderList(list);
+      showCmt(list);
+    }).catch(function(){
+      wrap.innerHTML = '<div class="rc-loading">加载失败</div>';
     });
 }
 
