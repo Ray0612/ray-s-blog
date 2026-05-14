@@ -13,11 +13,11 @@ date: 2026-05-14
   <!-- ===== 正在读 ===== -->
   <div class="book-card">
     <div class="book-cover">
-      <img src="/img/books/placeholder.jpg" alt="书名">
+      <img src="/img/books/悉达多.jpg" alt="悉达多">
     </div>
     <div class="book-info">
-      <div class="book-name">书名</div>
-      <div class="book-author">作者</div>
+      <div class="book-name">悉达多</div>
+      <div class="book-author">赫尔曼·黑塞</div>
     </div>
   </div>
 
