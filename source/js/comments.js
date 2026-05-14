@@ -16,6 +16,11 @@ try {
     return;
   }
 
+  // 移动端适配样式
+  var ms = document.createElement('style');
+  ms.textContent = '@media(max-width:768px){#rc-wrap .rc-row{flex-direction:column;gap:4px!important}}';
+  document.head.appendChild(ms);
+
   var wrap = document.createElement('div');
   wrap.id = 'rc-wrap';
   container.after(wrap);
@@ -35,7 +40,7 @@ try {
       html += '<div style="display:flex;gap:12px;margin-bottom:24px">';
       html += '<img style="width:44px;height:44px;border-radius:50%;flex-shrink:0;object-fit:cover;cursor:pointer" src="'+DEFAULT_AVATAR+'" id="rc-avatar">';
       html += '<div style="flex:1">';
-      html += '<div style="display:flex;gap:8px;margin-bottom:8px"><input id="rc-nick" placeholder="昵称 *" style="flex:1;padding:8px 12px;border:1px solid var(--border-color,#ddd);border-radius:6px;font-size:.9rem;background:var(--card-bg,#fff);color:var(--text-color,#333);outline:none"><input id="rc-email" placeholder="邮箱 *" style="flex:1;padding:8px 12px;border:1px solid var(--border-color,#ddd);border-radius:6px;font-size:.9rem;background:var(--card-bg,#fff);color:var(--text-color,#333);outline:none"></div>';
+      html += '<div class="rc-row" style="display:flex;gap:8px;margin-bottom:8px"><input id="rc-nick" placeholder="昵称 *" style="flex:1;padding:8px 12px;border:1px solid var(--border-color,#ddd);border-radius:6px;font-size:.9rem;background:var(--card-bg,#fff);color:var(--text-color,#333);outline:none"><input id="rc-email" placeholder="邮箱 *" style="flex:1;padding:8px 12px;border:1px solid var(--border-color,#ddd);border-radius:6px;font-size:.9rem;background:var(--card-bg,#fff);color:var(--text-color,#333);outline:none"></div>';
       html += '<textarea id="rc-text" placeholder="说点什么..." style="width:100%;padding:8px 12px;border:1px solid var(--border-color,#ddd);border-radius:6px;font-size:.9rem;min-height:72px;resize:vertical;box-sizing:border-box;font-family:inherit;background:var(--card-bg,#fff);color:var(--text-color,#333);outline:none" rows="3"></textarea>';
       html += '<div style="display:flex;align-items:center;justify-content:space-between;margin-top:6px"><button style="padding:4px 8px;border:1px solid var(--border-color,#ddd);border-radius:4px;cursor:pointer;font-size:1rem;background:var(--card-bg,#fff)" id="rc-emoji-btn">😊</button><button style="padding:6px 20px;border:none;border-radius:6px;background:var(--theme-color,#425aef);color:#fff;cursor:pointer;font-size:.9rem" id="rc-submit">发表评论</button></div>';
       html += '<div style="display:none;flex-wrap:wrap;gap:4px;padding:8px;margin-top:4px;border:1px solid var(--border-color,#ddd);border-radius:6px;background:var(--card-bg,#fff);max-height:120px;overflow-y:auto" id="rc-emoji"></div>';
