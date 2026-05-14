@@ -21,7 +21,7 @@ menu:
    Home: / || fas fa-home
    哲小思: /categories/哲小思/ || fas fa-book
    近况随笔: /categories/近况随笔/ || fas fa-pen
-   已读书目: /bookshelf/ || fas fa-bookmark
+   我的书架: /bookshelf/ || fas fa-bookmark
 
 # --------------------------------------
 # Code Blocks Settings
