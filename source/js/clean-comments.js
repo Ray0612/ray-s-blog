@@ -2,22 +2,30 @@ function removeEls() {
   var root = document.querySelector('.twikoo');
   if (!root) return;
 
-  // 隐藏评论区左上角设置齿轮
+  // 隐藏齿轮
   var settings = root.querySelector('[class*="admin"]');
   if (settings) settings.style.display = 'none';
 
-  // 隐藏工具栏里的图片上传 (找 fa-image 图标的父级)
+  // 隐藏图片上传按钮
   root.querySelectorAll('.tk-toolbar > *').forEach(function(el) {
     if (el.querySelector('.fa-image') || el.innerHTML.includes('svg')) {
       el.style.display = 'none';
     }
   });
 
-  // 隐藏 bilibili 表情标签
+  // 隐藏 bilibili 标签
   root.querySelectorAll('.tk-tabs .tk-tab').forEach(function(el) {
     if (el.textContent.toLowerCase().includes('bili')) {
       el.style.display = 'none';
     }
   });
+
+  // 删除指定位置的 emoji（第21、24、26、27、28个）
+  var emojis = root.querySelectorAll('.OwO-item');
+  if (emojis.length > 28) {
+    [20,23,25,26,27].forEach(function(i){
+      if (emojis[i]) emojis[i].style.display = 'none';
+    });
+  }
 }
 setInterval(removeEls, 300);
