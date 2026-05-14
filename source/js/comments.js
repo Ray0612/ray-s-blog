@@ -6,6 +6,12 @@ var url = window.location.pathname;
 if (document.querySelector('#recent-posts')) return;
 if (document.getElementById('rc-wrap')) return;
 
+// 在文章后插入评论区
+var article = document.querySelector('article');
+if (!article) return;
+article.insertAdjacentHTML('afterend', '<div id="rc-wrap"></div>');
+var wrap = document.getElementById('rc-wrap');
+
 // ===== 样式 =====
 var style = document.createElement('style');
 style.textContent = `
@@ -66,13 +72,6 @@ var DEFAULT_AVATAR = '/img/default-avatar.png';
 var saved = JSON.parse(localStorage.getItem('rc_user') || '{}');
 
 document.head.appendChild(style);
-
-// 插入评论区
-var inner = document.getElementById('content-inner');
-if (!inner) return;
-var wrap = document.createElement('div');
-wrap.id = 'rc-wrap';
-inner.appendChild(wrap);
 
 // Emoji 面板切换
 var emojiOpen = false;
