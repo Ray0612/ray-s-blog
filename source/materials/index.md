@@ -25,12 +25,12 @@ date: 2026-05-14
 }
 .chapter-card a:hover { color: var(--theme-color, #425aef); text-decoration: underline; }
 .lock-section {
-  margin-top: 60px; padding: 30px; border-top: 2px dashed #ddd;
+  margin-top: 60px; padding: 30px; border-top: 2px dashed var(--border-color, #ddd);
   text-align: center;
 }
 .lock-section input {
-  padding: 10px; font-size: 16px; border: 1px solid #ddd; border-radius: 8px;
-  width: 300px; max-width: 80%; outline: none;
+  padding: 10px; font-size: 16px; border: 1px solid var(--border-color, #ddd); border-radius: 8px;
+  width: 300px; max-width: 80%; outline: none; background: var(--input-bg, #fff); color: var(--text-color, #333);
 }
 .lock-section input:focus { border-color: #425aef; }
 .lock-section button {
@@ -38,7 +38,7 @@ date: 2026-05-14
   background: #425aef; color: #fff; cursor: pointer;
 }
 .lock-section button:hover { opacity: 0.9; }
-.lock-section .hint { color: #999; font-size: 14px; margin-top: 12px; }
+.lock-section .hint { color: var(--text-meta, #999); font-size: 14px; margin-top: 12px; }
 #errMsg { color: red; display: none; font-size: 14px; }
 </style>
 
