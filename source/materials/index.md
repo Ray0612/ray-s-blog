@@ -152,6 +152,14 @@ comments: false
     <h4 style="margin:0 0 12px">📝 提交问题</h4>
     <input id="qa-name" placeholder="你的名字 *">
     <textarea id="qa-question" placeholder="描述你的问题..." rows="3"></textarea>
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+      <button onclick="pickImage('q')" style="padding:6px 16px;border:1px solid var(--border-color,#ddd);border-radius:6px;cursor:pointer;font-size:.85rem;background:var(--card-bg,#fff);color:var(--text-color,#333)">📷 添加图片</button>
+      <span id="qa-img-name" style="font-size:.8rem;color:var(--text-meta,#999)"></span>
+    </div>
+    <div id="qa-img-preview" style="display:none;margin-bottom:8px;max-width:300px;border-radius:8px;overflow:hidden;position:relative">
+      <img id="qa-img-show" style="width:100%;display:block">
+      <button onclick="removeImage('q')" style="position:absolute;top:4px;right:4px;width:24px;height:24px;border-radius:50%;border:none;background:rgba(0,0,0,.5);color:#fff;cursor:pointer;font-size:14px;line-height:24px;text-align:center">×</button>
+    </div>
     <button id="qa-submit" onclick="submitQA()">提交问题</button>
   </div>
 </div>
@@ -176,13 +184,15 @@ function loadQA() {
       html += '<div class="qa-item">';
       html += '<div class="qa-name">' + esc(q.student_name) + (q.answered ? ' <span class="qa-answered">✅ 已解答</span>' : '') + '</div>';
       html += '<div class="qa-time">' + new Date(q.created_at).toLocaleString() + '</div>';
-      html += '<div class="qa-question">' + esc(q.question) + '</div>';
+      html += '<div class="qa-question">' + esc(q.question) + (q.question_image ? '<br><img src="' + q.question_image + '" style="max-width:100%;max-height:300px;border-radius:6px;margin-top:8px">' : '') + '</div>';
       if (q.answered) {
-        html += '<div class="qa-answer"><div class="qa-answer-label">👨‍🏫 Ray 的解答</div>' + esc(q.answer) + '</div>';
+        html += '<div class="qa-answer"><div class="qa-answer-label">👨‍🏫 Ray 的解答</div>' + esc(q.answer) + (q.answer_image ? '<br><img src="' + q.answer_image + '" style="max-width:100%;max-height:300px;border-radius:6px;margin-top:8px">' : '') + '</div>';
       } else {
         // 管理员回复框
         html += '<div class="qa-answer-form" style="display:none" id="qa-af-'+q.id+'">';
         html += '<textarea id="qa-at-'+q.id+'" placeholder="输入解答..." rows="2" style="width:100%;padding:8px;border:1px solid var(--border-color,#ddd);border-radius:6px;outline:none;font-family:inherit;font-size:.85rem;box-sizing:border-box"></textarea>';
+        html += '<div style="margin:4px 0"><button onclick="pickAnswerImage('+q.id+')" style="padding:4px 12px;border:1px solid var(--border-color,#ddd);border-radius:4px;cursor:pointer;font-size:.8rem;background:var(--card-bg,#fff);color:var(--text-color,#333)">📷 添加图片</button><span id="qa-ai-name-'+q.id+'" style="font-size:.75rem;color:var(--text-meta,#999);margin-left:6px"></span></div>';
+        html += '<div id="qa-ai-preview-'+q.id+'" style="display:none;margin-bottom:4px;max-width:200px;position:relative"><img id="qa-ai-show-'+q.id+'" style="width:100%;border-radius:4px"><button onclick="removeAnswerImage('+q.id+')" style="position:absolute;top:2px;right:2px;width:20px;height:20px;border-radius:50%;border:none;background:rgba(0,0,0,.5);color:#fff;cursor:pointer;font-size:12px;line-height:20px;text-align:center">×</button></div>';
         html += '<button onclick="answerQA('+q.id+')" style="padding:6px 16px;background:var(--theme-color,#425aef);color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:.82rem;margin-top:4px">提交解答</button>';
         html += '</div>';
         html += '<button onclick="showAnswer('+q.id+')" style="padding:4px 12px;border:1px solid var(--border-color,#ddd);border-radius:4px;cursor:pointer;font-size:.8rem;margin-top:4px">🔑 解答</button>';
@@ -193,14 +203,73 @@ function loadQA() {
   }).catch(function(){ list.innerHTML = '<div class="qa-empty">加载失败</div>'; });
 }
 
+var qaImage = '';
+var qaAnswerImages = {};
+
+function pickImage(type) {
+  var inp = document.createElement('input'); inp.type='file'; inp.accept='image/jpeg,image/png,image/webp,image/gif';
+  inp.onchange = function(){
+    var f = inp.files[0]; if (!f || f.size > 10*1024*1024) { alert('图片需小于10MB'); return; }
+    var r = new FileReader();
+    r.onload = function(e){
+      var img = new Image();
+      img.onload = function(){
+        var c = document.createElement('canvas');
+        var maxW = 800; var w = img.width, h = img.height;
+        if (w > maxW) { h = h * maxW / w; w = maxW; }
+        c.width = w; c.height = h;
+        var ctx = c.getContext('2d'); ctx.drawImage(img, 0, 0, w, h);
+        var data = c.toDataURL('image/jpeg', 0.7);
+        if (data.length > 210000) { alert('图片仍过大，请压缩后重试'); return; }
+        qaImage = data;
+        document.getElementById('qa-img-name').textContent = '✅ 已添加 (' + Math.round(data.length/1024) + 'KB)';
+        document.getElementById('qa-img-preview').style.display = 'block';
+        document.getElementById('qa-img-show').src = data;
+      };
+      img.src = e.target.result;
+    };
+    r.readAsDataURL(f);
+  };
+  inp.click();
+}
+
+function removeImage() { qaImage = ''; document.getElementById('qa-img-name').textContent = ''; document.getElementById('qa-img-preview').style.display = 'none'; }
+
+function pickAnswerImage(id) {
+  var inp = document.createElement('input'); inp.type='file'; inp.accept='image/jpeg,image/png,image/webp,image/gif';
+  inp.onchange = function(){
+    var f = inp.files[0]; if (!f || f.size > 10*1024*1024) { alert('图片需小于10MB'); return; }
+    var r = new FileReader();
+    r.onload = function(e){
+      var img = new Image();
+      img.onload = function(){
+        var c = document.createElement('canvas'); var maxW = 800; var w = img.width, h = img.height;
+        if (w > maxW) { h = h * maxW / w; w = maxW; }
+        c.width = w; c.height = h; var ctx = c.getContext('2d'); ctx.drawImage(img, 0, 0, w, h);
+        var data = c.toDataURL('image/jpeg', 0.7);
+        if (data.length > 210000) { alert('图片仍过大'); return; }
+        qaAnswerImages[id] = data;
+        document.getElementById('qa-ai-name-'+id).textContent = '✅ 已添加';
+        document.getElementById('qa-ai-preview-'+id).style.display = 'block';
+        document.getElementById('qa-ai-show-'+id).src = data;
+      };
+      img.src = e.target.result;
+    };
+    r.readAsDataURL(f);
+  };
+  inp.click();
+}
+
+function removeAnswerImage(id) { qaAnswerImages[id] = ''; document.getElementById('qa-ai-name-'+id).textContent = ''; document.getElementById('qa-ai-preview-'+id).style.display = 'none'; }
+
 function submitQA() {
   var name = document.getElementById('qa-name').value.trim();
   var question = document.getElementById('qa-question').value.trim();
   if (!name || !question) { alert('请填写姓名和问题'); return; }
   var btn = document.getElementById('qa-submit'); btn.disabled = true; btn.textContent = '提交中...';
-  fetch(API + '/api/qa', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({name:name, question:question})})
+  fetch(API + '/api/qa', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({name:name, question:question, question_image:qaImage})})
     .then(function(r){return r.json()}).then(function(d){
-      if (d.id) { document.getElementById('qa-question').value=''; loadQA(); }
+      if (d.id) { document.getElementById('qa-question').value=''; qaImage=''; document.getElementById('qa-img-name').textContent=''; document.getElementById('qa-img-preview').style.display='none'; loadQA(); }
       else alert(d.error||'提交失败');
     }).catch(function(){alert('网络错误')})
     .finally(function(){btn.disabled=false;btn.textContent='提交问题';});
@@ -220,9 +289,10 @@ function showAnswer(id) {
 function answerQA(id) {
   var answer = document.getElementById('qa-at-'+id).value.trim();
   if (!answer) { alert('请输入解答'); return; }
-  fetch(API + '/api/qa/answer', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({id:id, answer:answer, admin:qaPwd})})
+  var img = qaAnswerImages[id] || '';
+  fetch(API + '/api/qa/answer', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({id:id, answer:answer, answer_image:img, admin:qaPwd})})
     .then(function(r){return r.json()}).then(function(d){
-      if (d.success) loadQA();
+      if (d.success) { qaAnswerImages[id]=''; loadQA(); }
       else { alert('密码错误，请重新输入'); qaPwd = ''; }
     }).catch(function(){alert('网络错误')});
 }
