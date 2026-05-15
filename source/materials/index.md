@@ -184,9 +184,9 @@ function loadQA() {
       html += '<div class="qa-item">';
       html += '<div class="qa-name">' + esc(q.student_name) + (q.answered ? ' <span class="qa-answered">✅ 已解答</span>' : '') + '</div>';
       html += '<div class="qa-time">' + new Date(q.created_at).toLocaleString() + '</div>';
-      html += '<div class="qa-question">' + esc(q.question) + (q.question_image ? '<br><img src="' + q.question_image + '" style="max-width:100%;max-height:300px;border-radius:6px;margin-top:8px">' : '') + '</div>';
+      html += '<div class="qa-question">' + esc(q.question) + (q.question_image ? '<br><img src="' + q.question_image + '" style="max-width:100%;max-height:300px;border-radius:6px;margin-top:8px">' : '') + ' <span onclick="delQA('+q.id+')" style="cursor:pointer;color:#e53935;font-size:.8rem;float:right">🗑️</span></div>';
       if (q.answered) {
-        html += '<div class="qa-answer"><div class="qa-answer-label">👨‍🏫 Ray 的解答</div>' + esc(q.answer) + (q.answer_image ? '<br><img src="' + q.answer_image + '" style="max-width:100%;max-height:300px;border-radius:6px;margin-top:8px">' : '') + '</div>';
+        html += '<div class="qa-answer"><div class="qa-answer-label">Ray 的解答</div>' + esc(q.answer) + (q.answer_image ? '<br><img src="' + q.answer_image + '" style="max-width:100%;max-height:300px;border-radius:6px;margin-top:8px">' : '') + '</div>';
       } else {
         // 管理员回复框
         html += '<div class="qa-answer-form" style="display:none" id="qa-af-'+q.id+'">';
@@ -284,6 +284,13 @@ function showAnswer(id) {
     qaPwd = p;
   }
   document.getElementById('qa-af-'+id).style.display = 'block';
+}
+
+function delQA(id) {
+  if (!qaPwd) { var p = prompt('管理密码：'); if (!p) return; qaPwd = p; }
+  if (!confirm('确定删除该问题？')) return;
+  fetch(API + '/api/qa/delete', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({id:id, admin:qaPwd})})
+    .then(function(r){return r.json()}).then(function(d){ if(d.success) loadQA(); else { alert('密码错误'); qaPwd=''; } });
 }
 
 function answerQA(id) {
