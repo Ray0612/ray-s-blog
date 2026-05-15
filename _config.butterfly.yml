@@ -277,7 +277,7 @@ footer:
   copyright:
     enable: true
     version: true
-  custom_text: ' | <a href="/tools/comment-admin/">📋 评论管理</a>'
+  custom_text:
 
 # --------------------------------------
 # Aside Settings
