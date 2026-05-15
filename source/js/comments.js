@@ -7,7 +7,7 @@ try {
 
   // 首页和工具集跳
   if (document.getElementById('recent-posts')) return;
-  if (url.startsWith('/tools/') || url.startsWith('/materials/')) return;
+  if (url.startsWith('/tools') || url.startsWith('/materials')) return;
   if (document.getElementById('rc-wrap')) return;
 
   // 插入容器
