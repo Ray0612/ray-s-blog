@@ -215,12 +215,11 @@ function pickImage(type) {
       var img = new Image();
       img.onload = function(){
         var c = document.createElement('canvas');
-        var maxW = 800; var w = img.width, h = img.height;
+        var maxW = 1200; var w = img.width, h = img.height;
         if (w > maxW) { h = h * maxW / w; w = maxW; }
         c.width = w; c.height = h;
         var ctx = c.getContext('2d'); ctx.drawImage(img, 0, 0, w, h);
-        var data = c.toDataURL('image/jpeg', 0.7);
-        if (data.length > 210000) { alert('图片仍过大，请压缩后重试'); return; }
+        var data = c.toDataURL('image/jpeg', 0.85);
         qaImage = data;
         document.getElementById('qa-img-name').textContent = '✅ 已添加 (' + Math.round(data.length/1024) + 'KB)';
         document.getElementById('qa-img-preview').style.display = 'block';
@@ -243,11 +242,10 @@ function pickAnswerImage(id) {
     r.onload = function(e){
       var img = new Image();
       img.onload = function(){
-        var c = document.createElement('canvas'); var maxW = 800; var w = img.width, h = img.height;
+        var c = document.createElement('canvas'); var maxW = 1200; var w = img.width, h = img.height;
         if (w > maxW) { h = h * maxW / w; w = maxW; }
         c.width = w; c.height = h; var ctx = c.getContext('2d'); ctx.drawImage(img, 0, 0, w, h);
-        var data = c.toDataURL('image/jpeg', 0.7);
-        if (data.length > 210000) { alert('图片仍过大'); return; }
+        var data = c.toDataURL('image/jpeg', 0.85);
         qaAnswerImages[id] = data;
         document.getElementById('qa-ai-name-'+id).textContent = '✅ 已添加';
         document.getElementById('qa-ai-preview-'+id).style.display = 'block';
