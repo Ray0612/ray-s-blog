@@ -6,7 +6,7 @@ try {
   var url = window.location.pathname;
 
   // 只在文章页显示
-  if (!document.querySelector('.post') && !document.getElementById('article-container')) return;
+  if (!document.getElementById('article-container')) return;
   if (document.getElementById('rc-wrap')) return;
 
   // 插入容器
