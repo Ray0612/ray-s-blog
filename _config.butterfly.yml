@@ -305,7 +305,7 @@ aside:
       link: https://github.com/xxxxxx
   card_announcement:
     enable: true
-    content: This is my Blog
+    content: 欢迎来到我的个人博客！这里记录着我的思考、我的学习、我的教学、我的工具.....这里还在不停的建设！你有想要的小工具或者想问的问题、想说的话可以发在这个邮箱哦 <a href="mailto:ray@ray2.asia">ray@ray2.asia</a>~常来看看吧！
   card_recent_post:
     enable: true
     # If set 0 will show all
