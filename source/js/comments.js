@@ -5,8 +5,8 @@ try {
   var API = 'https://comment.ray2.asia';
   var url = window.location.pathname;
 
-  // 只在文章页显示
-  if (!document.getElementById('article-container')) return;
+  // 只在文章页显示（匹配 /YYYY/MM/DD/标题/ 格式）
+  if (!/^\/\d{4}\/\d{2}\/\d{2}\//.test(url)) return;
   if (document.getElementById('rc-wrap')) return;
 
   // 插入容器
