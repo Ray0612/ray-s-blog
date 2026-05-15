@@ -184,9 +184,9 @@ function loadQA() {
       html += '<div class="qa-item">';
       html += '<div class="qa-name">' + esc(q.student_name) + (q.answered ? ' <span class="qa-answered">✅ 已解答</span>' : '') + '</div>';
       html += '<div class="qa-time">' + new Date(q.created_at).toLocaleString() + '</div>';
-      html += '<div class="qa-question">' + esc(q.question) + (q.question_image ? '<br><img src="' + q.question_image + '" style="max-width:100%;max-height:300px;border-radius:6px;margin-top:8px">' : '') + ' <span onclick="delQA('+q.id+')" style="cursor:pointer;color:#e53935;font-size:.8rem;float:right">🗑️</span></div>';
+      html += '<div class="qa-question">' + esc(q.question) + (q.question_image ? '<br><img src="' + q.question_image + '" style="max-width:100%;max-height:300px;border-radius:6px;margin-top:8px;cursor:pointer" onclick="zoomImg(this)">' : '') + ' <span onclick="delQA('+q.id+')" style="cursor:pointer;color:#e53935;font-size:.8rem;float:right">🗑️</span></div>';
       if (q.answered) {
-        html += '<div class="qa-answer"><div class="qa-answer-label">Ray 的解答</div>' + esc(q.answer) + (q.answer_image ? '<br><img src="' + q.answer_image + '" style="max-width:100%;max-height:300px;border-radius:6px;margin-top:8px">' : '') + '</div>';
+        html += '<div class="qa-answer"><div class="qa-answer-label">Ray 的解答</div>' + esc(q.answer) + (q.answer_image ? '<br><img src="' + q.answer_image + '" style="max-width:100%;max-height:300px;border-radius:6px;margin-top:8px;cursor:pointer" onclick="zoomImg(this)">' : '') + '</div>';
       } else {
         // 管理员回复框
         html += '<div class="qa-answer-form" style="display:none" id="qa-af-'+q.id+'">';
@@ -300,6 +300,17 @@ function answerQA(id) {
       if (d.success) { qaAnswerImages[id]=''; loadQA(); }
       else { alert('密码错误，请重新输入'); qaPwd = ''; }
     }).catch(function(){alert('网络错误')});
+}
+
+function zoomImg(el) {
+  var ov = document.createElement('div');
+  ov.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.85);z-index:9999;display:flex;align-items:center;justify-content:center;cursor:zoom-out';
+  var img = document.createElement('img');
+  img.src = el.src;
+  img.style.cssText = 'max-width:92%;max-height:92%;border-radius:8px;box-shadow:0 4px 30px rgba(0,0,0,.4)';
+  ov.appendChild(img);
+  ov.onclick = function(){ document.body.removeChild(ov); };
+  document.body.appendChild(ov);
 }
 
 function esc(s) { return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
