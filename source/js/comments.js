@@ -1,12 +1,24 @@
 // Ray 评论区 - 最终版
 (function(){
-console.log('rc: loading');
-try {
-  var API = 'https://comment.ray2.asia';
-  var url = window.location.pathname;
+var API = 'https://comment.ray2.asia';
 
-  // 只在文章页显示（匹配 /YYYY/MM/DD/标题/ 格式）
-  if (!/^\/\d{4}\/\d{2}\/\d{2}\//.test(url)) return;
+// PJAX 导航后清理旧评论区
+function cleanRC() {
+  var el = document.getElementById('rc-wrap');
+  if (el && !/^\/\d{4}\/\d{2}\/\d{2}\//.test(window.location.pathname)) el.remove();
+}
+
+// 监听 PJAX 完成事件
+document.addEventListener('pjax:complete', cleanRC);
+document.addEventListener('DOMContentLoaded', cleanRC);
+
+// 只在文章页显示
+if (!/^\/\d{4}\/\d{2}\/\d{2}\//.test(window.location.pathname)) return;
+var url = window.location.pathname;
+
+  // 移除旧的评论区容器（PJAX 导航时）
+  var oldWrap = document.getElementById('rc-wrap');
+  if (oldWrap) oldWrap.remove();
   if (document.getElementById('rc-wrap')) return;
 
   // 插入容器
