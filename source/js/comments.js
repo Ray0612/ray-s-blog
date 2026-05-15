@@ -1,5 +1,6 @@
 // Ray 评论区 - 最终版
 (function(){
+try {
 var API = 'https://comment.ray2.asia';
 
 // 图片加载失败显示纯色背景
