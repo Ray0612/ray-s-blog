@@ -209,7 +209,7 @@ var qaAnswerImages = {};
 function pickImage(type) {
   var inp = document.createElement('input'); inp.type='file'; inp.accept='image/jpeg,image/png,image/webp,image/gif';
   inp.onchange = function(){
-    var f = inp.files[0]; if (!f || f.size > 10*1024*1024) { alert('图片需小于10MB'); return; }
+    var f = inp.files[0]; if (!f || f.size > 20*1024*1024) { alert('图片需小于20MB'); return; }
     var r = new FileReader();
     r.onload = function(e){
       var img = new Image();
@@ -219,7 +219,7 @@ function pickImage(type) {
         if (w > maxW) { h = h * maxW / w; w = maxW; }
         c.width = w; c.height = h;
         var ctx = c.getContext('2d'); ctx.drawImage(img, 0, 0, w, h);
-        var data = c.toDataURL('image/jpeg', 0.85);
+        var data = c.toDataURL('image/jpeg', 0.7);
         qaImage = data;
         document.getElementById('qa-img-name').textContent = '✅ 已添加 (' + Math.round(data.length/1024) + 'KB)';
         document.getElementById('qa-img-preview').style.display = 'block';
@@ -237,7 +237,7 @@ function removeImage() { qaImage = ''; document.getElementById('qa-img-name').te
 function pickAnswerImage(id) {
   var inp = document.createElement('input'); inp.type='file'; inp.accept='image/jpeg,image/png,image/webp,image/gif';
   inp.onchange = function(){
-    var f = inp.files[0]; if (!f || f.size > 10*1024*1024) { alert('图片需小于10MB'); return; }
+    var f = inp.files[0]; if (!f || f.size > 20*1024*1024) { alert('图片需小于20MB'); return; }
     var r = new FileReader();
     r.onload = function(e){
       var img = new Image();
@@ -245,7 +245,7 @@ function pickAnswerImage(id) {
         var c = document.createElement('canvas'); var maxW = 1200; var w = img.width, h = img.height;
         if (w > maxW) { h = h * maxW / w; w = maxW; }
         c.width = w; c.height = h; var ctx = c.getContext('2d'); ctx.drawImage(img, 0, 0, w, h);
-        var data = c.toDataURL('image/jpeg', 0.85);
+        var data = c.toDataURL('image/jpeg', 0.7);
         qaAnswerImages[id] = data;
         document.getElementById('qa-ai-name-'+id).textContent = '✅ 已添加';
         document.getElementById('qa-ai-preview-'+id).style.display = 'block';
