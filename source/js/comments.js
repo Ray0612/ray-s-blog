@@ -2,6 +2,11 @@
 (function(){
 var API = 'https://comment.ray2.asia';
 
+// 图片加载失败显示纯色背景
+document.addEventListener('error', function(e){
+  if (e.target.tagName === 'IMG') e.target.style.background = '#e8e8e8';
+}, true);
+
 // PJAX 导航后清理旧评论区
 function cleanRC() {
   var el = document.getElementById('rc-wrap');

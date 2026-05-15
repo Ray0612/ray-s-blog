@@ -166,6 +166,7 @@ comments: false
 </div>
 
 <script>
+document.addEventListener('error',function(e){if(e.target.tagName==='IMG')e.target.style.background='#e8e8e8'},true);
 var API = 'https://comment.ray2.asia';
 
 function switchTab(t) {
