@@ -5,9 +5,8 @@ try {
   var API = 'https://comment.ray2.asia';
   var url = window.location.pathname;
 
-  // 首页和工具集跳
-  if (document.getElementById('recent-posts')) return;
-  if (url.startsWith('/tools') || url.startsWith('/materials') || document.querySelector('.tab-bar')) return;
+  // 只在文章页显示
+  if (!document.querySelector('.post') && !document.getElementById('article-container')) return;
   if (document.getElementById('rc-wrap')) return;
 
   // 插入容器
