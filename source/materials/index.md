@@ -245,7 +245,7 @@ function pickAnswerImage(id) {
         var c = document.createElement('canvas'); var maxW = 1200; var w = img.width, h = img.height;
         if (w > maxW) { h = h * maxW / w; w = maxW; }
         c.width = w; c.height = h; var ctx = c.getContext('2d'); ctx.drawImage(img, 0, 0, w, h);
-        var data = c.toDataURL('image/jpeg', 0.7);
+        var data = c.toDataURL('image/jpeg', 0.5);
         qaAnswerImages[id] = data;
         document.getElementById('qa-ai-name-'+id).textContent = '✅ 已添加';
         document.getElementById('qa-ai-preview-'+id).style.display = 'block';
@@ -295,11 +295,16 @@ function answerQA(id) {
   var answer = document.getElementById('qa-at-'+id).value.trim();
   if (!answer) { alert('请输入解答'); return; }
   var img = qaAnswerImages[id] || '';
-  fetch(API + '/api/qa/answer', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({id:id, answer:answer, answer_image:img, admin:qaPwd})})
+  var btn = event.target; btn.disabled=true; btn.textContent='⏳ 提交中...';
+  var controller = new AbortController();
+  var timer = setTimeout(function(){ controller.abort(); alert('请求超时'); btn.disabled=false; btn.textContent='提交解答'; }, 30000);
+  fetch(API + '/api/qa/answer', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({id:id, answer:answer, answer_image:img, admin:qaPwd}), signal:controller.signal})
     .then(function(r){return r.json()}).then(function(d){
+      clearTimeout(timer);
       if (d.success) { qaAnswerImages[id]=''; loadQA(); }
       else { alert('密码错误，请重新输入'); qaPwd = ''; }
-    }).catch(function(){alert('网络错误')});
+    }).catch(function(e){if(e.name!='AbortError')alert('网络错误');})
+    .finally(function(){btn.disabled=false;btn.textContent='提交解答';});
 }
 
 function zoomImg(el) {
