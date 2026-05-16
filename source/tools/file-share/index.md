@@ -27,12 +27,12 @@ comments: false
   </div>
 
   <div id="panel-code" class="panel">
-    <div class="fs-subtabs">
-      <button class="fs-subtab active" onclick="switchSubTab('up')">📤 上传</button>
-      <button class="fs-subtab" onclick="switchSubTab('down')">📥 下载</button>
+    <div class="sub-tabs">
+      <button class="sub-tab active" onclick="switchSubTab('up')">📤 上传</button>
+      <button class="sub-tab" onclick="switchSubTab('down')">📥 下载</button>
     </div>
 
-    <div id="sub-up" class="fs-subpanel active">
+    <div id="sub-up" class="sub-panel active">
       <div class="field">
         <label>选择文件</label>
         <input type="file" id="code-file" multiple>
@@ -51,7 +51,7 @@ comments: false
       <div class="result" id="up-result"></div>
     </div>
 
-    <div id="sub-down" class="fs-subpanel">
+    <div id="sub-down" class="sub-panel">
       <div class="field">
         <label>6位提取码</label>
         <input id="code-inp" maxlength="6" placeholder="输入6位提取码" oninput="this.value=this.value.replace(/\D/g,'')">
@@ -63,64 +63,12 @@ comments: false
         <div style="margin-top:12px;text-align:center;font-size:.8rem;color:var(--text-meta,#999)" id="remain-hint"></div>
       </div>
     </div>
-  <div class="admin-bar">
-    <span class="limit-hint">🔒 文件上限50MB | 邮件每小时5次</span>
-    <span>
-      <span class="admin-badge" id="admin-badge">👑 管理员模式</span>
-      <a class="admin-toggle" href="javascript:tryAdmin()">🔑 管理员</a>
-    </span>
   </div>
 </div>
 
 <script>
 const API = 'https://file.ray2.asia';
 let _dc = 3;
-var _admin = false;
-var _adminPwd = sessionStorage.getItem('fs_admin_pwd') || '';
-if (_adminPwd) {
-  (async function() {
-    try {
-      var r = await fetch(API + '/api/check-admin', {
-        method: 'POST', headers: {'Content-Type':'application/json'},
-        body: JSON.stringify({admin_pwd: _adminPwd}),
-      });
-      var d = await r.json();
-      if (d.admin) {
-        _admin = true;
-        document.getElementById('admin-badge').style.display = 'inline';
-        document.querySelector('.limit-hint').textContent = '👑 管理员模式 | 文件上限200MB | 频率无限制';
-      } else {
-        _adminPwd = '';
-        sessionStorage.removeItem('fs_admin_pwd');
-      }
-    } catch(e) {}
-  })();
-}
-
-// 管理员模式
-async function tryAdmin() {
-  var pwd = prompt('🔑 管理员密码：');
-  if (!pwd) return;
-  try {
-    var r = await fetch(API + '/api/check-admin', {
-      method: 'POST', headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({admin_pwd: pwd}),
-    });
-    var d = await r.json();
-    if (d.admin) {
-      _admin = true;
-      _adminPwd = pwd;
-      sessionStorage.setItem('fs_admin_pwd', pwd);
-      document.getElementById('admin-badge').style.display = 'inline';
-      document.querySelector('.limit-hint').textContent = '👑 管理员模式 | 文件上限200MB | 频率无限制';
-      alert('✅ 管理员模式已开启，限制已解除');
-    } else {
-      alert('❌ 密码错误');
-    }
-  } catch(e) { alert('验证失败'); }
-}
-
-function adminPwdField() { return _adminPwd ? _adminPwd : ''; }
 
 function switchTab(t) {
   var tabs = document.querySelectorAll('#file-share-app > .fs-tabs > .fs-tab');
@@ -133,11 +81,11 @@ function switchTab(t) {
 }
 
 function switchSubTab(t) {
-  var tabs = document.querySelectorAll('.fs-subtab');
+  var tabs = document.querySelectorAll('.sub-tab');
   for (var i = 0; i < tabs.length; i++) {
     tabs[i].classList.toggle('active', tabs[i].textContent.indexOf(t === 'up' ? '上传' : '下载') >= 0);
   }
-  var panels = document.querySelectorAll('.fs-subpanel');
+  var panels = document.querySelectorAll('.sub-panel');
   for (var i = 0; i < panels.length; i++) panels[i].classList.remove('active');
   document.getElementById('sub-' + t).classList.add('active');
 }
@@ -172,7 +120,6 @@ async function sendEmail() {
   var fd = new FormData();
   for (var fi = 0; fi < files.length; fi++) fd.append('file', files[fi]);
   fd.append('email', e);
-  if (_adminPwd) fd.append('admin_pwd', _adminPwd);
   try {
     var r = await fetch(API + '/api/send-email', { method: 'POST', body: fd });
     var d = await r.json();
@@ -189,7 +136,6 @@ async function upFile() {
   var fd = new FormData();
   for (var fi = 0; fi < files.length; fi++) fd.append('file', files[fi]);
   fd.append('maxDownloads', _dc);
-  if (_adminPwd) fd.append('admin_pwd', _adminPwd);
   try {
     var r = await fetch(API + '/api/upload', { method: 'POST', body: fd });
     var d = await r.json();
@@ -311,11 +257,11 @@ function sz(b) {
 </script>
 
 <style>
-#file-share-app .fs-subtabs { display:flex; gap:0; margin-bottom:16px; }
-#file-share-app .fs-subtab { flex:1; padding:10px; border:1px solid var(--border-color,#ddd); background:var(--card-bg,#f9f9f9); cursor:pointer; font-size:.9rem; color:var(--text-meta,#999); transition:all .2s; text-align:center; }
-#file-share-app .fs-subtab:first-child { border-radius:6px 0 0 6px; }
-#file-share-app .fs-subtab:last-child { border-radius:0 6px 6px 0; }
-#file-share-app .fs-subtab.active { background:var(--theme-color,#425aef); color:#fff; border-color:var(--theme-color,#425aef); }
+#file-share-app .sub-tabs { display:flex; gap:0; margin-bottom:16px; }
+#file-share-app .sub-tab { flex:1; padding:10px; border:1px solid var(--border-color,#ddd); background:var(--card-bg,#f9f9f9); cursor:pointer; font-size:.9rem; color:var(--text-meta,#999); transition:all .2s; text-align:center; }
+#file-share-app .sub-tab:first-child { border-radius:6px 0 0 6px; }
+#file-share-app .sub-tab:last-child { border-radius:0 6px 6px 0; }
+#file-share-app .sub-tab.active { background:var(--theme-color,#425aef); color:#fff; border-color:var(--theme-color,#425aef); }
 .field { margin-bottom:14px; }
 .field label { display:block; font-size:.85rem; font-weight:600; margin-bottom:4px; color:var(--text-color,#333); }
 .field input[type="file"] { font-size:.85rem; }
@@ -331,13 +277,8 @@ function sz(b) {
 .file-item-size { font-size:.8rem; color:var(--text-meta,#999); white-space:nowrap; }
 .file-dl-btn { padding:4px 14px; border:none; border-radius:4px; background:var(--theme-color,#425aef); color:#fff; cursor:pointer; font-size:.82rem; white-space:nowrap; }
 .file-dl-btn:hover { opacity:.85; }
-.admin-bar { margin-top:24px; padding-top:12px; border-top:1px solid var(--border-color,#eee); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; }
-.admin-bar .limit-hint { font-size:.78rem; color:var(--text-meta,#999); }
-.admin-bar .admin-toggle { font-size:.78rem; color:var(--text-meta,#999); cursor:pointer; text-decoration:none; }
-.admin-bar .admin-toggle:hover { color:var(--theme-color,#425aef); }
-.admin-badge { display:none; font-size:.78rem; color:var(--theme-color,#425aef); font-weight:600; }
-.fs-subpanel { display:none; }
-.fs-subpanel.active { display:block; }
-#sub-up.fs-subpanel.active { display:block; }
-#sub-down.fs-subpanel.active { display:block; }
+.sub-panel { display:none; }
+.sub-panel.active { display:block; }
+#sub-up.sub-panel.active { display:block; }
+#sub-down.sub-panel.active { display:block; }
 </style>
