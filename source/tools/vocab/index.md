@@ -111,8 +111,8 @@ comments: false
   <div id="step-plan" style="display:none">
     <div class="plan-header">
       <span id="plan-stats"></span>
-      <button class="ts-btn" style="width:auto;padding:10px 20px;display:inline-block;margin-right:8px" onclick="printPlan(this)">🖨️ 打印导出</button>
-      <button id="_cloud_btn" class="ts-btn" style="width:auto;padding:10px 20px;display:inline-block;background:#43a047" onclick="cloudPlan(this)">☁️ 云生成 PDF</button>
+      <button class="ts-btn" style="width:auto;padding:10px 20px;display:inline-block;margin-right:8px" onclick="printPlan(this)" title="适用于电脑端非Safari浏览器，排版精美速度快">🖨️ 打印导出PDF</button>
+      <button id="_cloud_btn" class="ts-btn" style="width:auto;padding:10px 20px;display:inline-block;background:#43a047" onclick="cloudPlan(this)" title="适用于所有端，速度稍慢">☁️ 云导出PDF</button>
     </div>
     <div id="plan-content"></div>
   </div>
@@ -317,7 +317,7 @@ function cloudPlan(btn) {
   var unknown = getUnknown();
   if (unknown.length === 0) return;
   if (!btn) btn = document.querySelector('#_cloud_btn');
-  btn.textContent = '⏳ 云生成中...'; btn.disabled = true;
+  btn.textContent = '⏳ 云导出中...'; btn.disabled = true;
 
   var perDay = Math.ceil(unknown.length / curDays);
   var daysList = [];
@@ -339,9 +339,9 @@ function cloudPlan(btn) {
       a.download = '词汇记忆计划_' + curDays + '天.pdf'; a.click();
       URL.revokeObjectURL(url);
     } else { alert('生成失败，请重试'); }
-    btn.textContent = '☁️ 云生成 PDF'; btn.disabled = false;
+    btn.textContent = '☁️ 云导出PDF'; btn.disabled = false;
   };
-  xhr.onerror = function() { alert('网络错误'); btn.textContent = '☁️ 云生成 PDF'; btn.disabled = false; };
+  xhr.onerror = function() { alert('网络错误，请重试'); btn.textContent = '☁️ 云导出PDF'; btn.disabled = false; };
   xhr.send(JSON.stringify({ days: daysList, planDays: curDays }));
 }
 
