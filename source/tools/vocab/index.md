@@ -338,21 +338,23 @@ function cloudPlan(btn) {
     daysList.push(dayWords);
   }
 
-  var xhr = new XMLHttpRequest();
-  xhr.open('POST', 'https://pdf.ray2.asia/');
-  xhr.setRequestHeader('Content-Type', 'application/json');
-  xhr.responseType = 'blob';
-  xhr.onload = function() {
-    if (xhr.status === 200) {
-      var url = URL.createObjectURL(xhr.response);
-      var a = document.createElement('a'); a.href = url;
-      a.download = '词汇记忆计划_' + curDays + '天.pdf'; a.click();
-      URL.revokeObjectURL(url);
-    } else { alert('生成失败，请重试'); }
+  fetch('https://pdf.ray2.asia/', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ days: daysList, planDays: curDays, wordSet: currentCat }),
+  }).then(function(r) {
+    if (!r.ok) throw new Error('生成失败');
+    return r.blob();
+  }).then(function(blob) {
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a'); a.href = url;
+    a.download = '词汇记忆计划_' + curDays + '天.pdf'; a.click();
+    URL.revokeObjectURL(url);
     btn.textContent = '☁️ 云导出PDF'; btn.disabled = false;
-  };
-  xhr.onerror = function() { alert('网络错误，请重试'); btn.textContent = '☁️ 云导出PDF'; btn.disabled = false; };
-  xhr.send(JSON.stringify({ days: daysList, planDays: curDays, wordSet: currentCat }));
+  }).catch(function() {
+    alert('网络错误，请重试');
+    btn.textContent = '☁️ 云导出PDF'; btn.disabled = false;
+  });
 }
 
 function resetAll() {
