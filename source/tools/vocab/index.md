@@ -111,7 +111,8 @@ comments: false
   <div id="step-plan" style="display:none">
     <div class="plan-header">
       <span id="plan-stats"></span>
-      <button class="ts-btn" style="width:auto;padding:10px 28px;display:inline-block" onclick="printPlan()">🖨️ 导出 PDF</button>
+      <button class="ts-btn" style="width:auto;padding:10px 20px;display:inline-block;margin-right:8px" onclick="printPlan()">🖨️ 打印导出</button>
+      <button class="ts-btn" style="width:auto;padding:10px 20px;display:inline-block;background:#43a047" onclick="cloudPlan()">☁️ 云生成 PDF</button>
     </div>
     <div id="plan-content"></div>
   </div>
@@ -349,6 +350,39 @@ function printPlan() {
     btn.textContent = '🖨️ 导出 PDF'; btn.disabled = false;
   };
   xhr.send(payload);
+}
+
+function cloudPlan() {
+  var unknown = getUnknown();
+  if (unknown.length === 0) return;
+  var btns = document.querySelectorAll('.plan-header .ts-btn');
+  var btn = btns[1];
+  btn.textContent = '⏳ 云生成中...'; btn.disabled = true;
+
+  var perDay = Math.ceil(unknown.length / curDays);
+  var daysList = [];
+  for (var d = 0; d < curDays; d++) {
+    var start = d * perDay;
+    var dayWords = unknown.slice(start, start + perDay);
+    if (dayWords.length === 0) break;
+    daysList.push(dayWords);
+  }
+
+  var xhr = new XMLHttpRequest();
+  xhr.open('POST', 'https://pdf.ray2.asia/');
+  xhr.setRequestHeader('Content-Type', 'application/json');
+  xhr.responseType = 'blob';
+  xhr.onload = function() {
+    if (xhr.status === 200) {
+      var url = URL.createObjectURL(xhr.response);
+      var a = document.createElement('a'); a.href = url;
+      a.download = '词汇记忆计划_' + curDays + '天.pdf'; a.click();
+      URL.revokeObjectURL(url);
+    } else { alert('生成失败，请重试'); }
+    btn.textContent = '☁️ 云生成 PDF'; btn.disabled = false;
+  };
+  xhr.onerror = function() { alert('网络错误'); btn.textContent = '☁️ 云生成 PDF'; btn.disabled = false; };
+  xhr.send(JSON.stringify({ days: daysList, planDays: curDays }));
 }
 
 function resetAll() {
