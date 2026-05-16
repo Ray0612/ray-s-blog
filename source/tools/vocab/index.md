@@ -263,17 +263,22 @@ function startQuick() {
 function renderQuick() {
   var html = '';
   for (var i = 0; i < words.length; i++) {
-    html += '<div class="quick-item' + (knownSet.has(i) ? ' quick-known' : '') + '"><span class="quick-word">' + esc(words[i].word) + '</span><span class="quick-mean">' + esc(words[i].meaning) + '</span><button class="quick-btn" onclick="toggleKnown(this,' + i + ')">' + (knownSet.has(i) ? '✓' : '✕') + '</button></div>';
+    html += '<div class="quick-item' + (knownSet.has(i) ? ' quick-known' : '') + '" id="qi_' + i + '"><span class="quick-word">' + esc(words[i].word) + '</span><span class="quick-mean">' + esc(words[i].meaning) + '</span><button class="quick-btn" onclick="toggleKnown(this,' + i + ')">' + (knownSet.has(i) ? '✓' : '✕') + '</button></div>';
   }
   document.getElementById('quick-list').innerHTML = html;
   document.getElementById('quick-info').textContent = '总词: ' + words.length + ' | 已掌握: ' + knownSet.size + ' | 剩余: ' + getUnknown().length;
   updateStats();
 }
 
-function toggleKnown(el, idx) {
-  if (knownSet.has(idx)) knownSet.delete(idx); else knownSet.add(idx);
-  renderQuick();
+function toggleKnown(btn, idx) {
+  if (knownSet.has(idx)) { knownSet.delete(idx); btn.textContent = '✕'; }
+  else { knownSet.add(idx); btn.textContent = '✓'; }
+  var item = document.getElementById('qi_' + idx);
+  if (item) item.classList.toggle('quick-known', knownSet.has(idx));
+  document.getElementById('quick-info').textContent = '总词: ' + words.length + ' | 已掌握: ' + knownSet.size + ' | 剩余: ' + getUnknown().length;
+  updateStats();
 }
+
 
 // === 生成计划 ===
 function finishFilter() {
