@@ -9,7 +9,7 @@ comments: false
 <div id="file-share-app">
   <div class="fs-tabs">
     <button class="fs-tab active" onclick="switchTab('email')">📧 邮箱发送</button>
-    <button class="tab" onclick="switchTab('code')">🔑 提取码</button>
+    <button class="fs-tab" onclick="switchTab('code')">🔑 提取码</button>
   </div>
 
   <div id="panel-email" class="panel active">
