@@ -306,7 +306,50 @@ function generatePlan() {
   document.getElementById('plan-stats').textContent = '📊 ' + curDays + ' 天 · 共 ' + unknown.length + ' 个词 · 每天约 ' + perDay + ' 词';
 }
 
-function printPlan() { window.print(); }
+function printPlan() {
+  var unknown = getUnknown();
+  if (unknown.length === 0) return;
+  var btn = document.querySelector('.plan-header .ts-btn');
+  btn.textContent = '⏳ 生成中...'; btn.disabled = true;
+
+  var perDay = Math.ceil(unknown.length / curDays);
+  var daysList = [];
+  for (var d = 0; d < curDays; d++) {
+    var start = d * perDay;
+    var dayWords = unknown.slice(start, start + perDay);
+    if (dayWords.length === 0) break;
+    var list = [];
+    for (var i = 0; i < dayWords.length; i++) {
+      list.push({ word: words[dayWords[i]].word, meaning: words[dayWords[i]].meaning });
+    }
+    daysList.push(list);
+  }
+
+  var payload = JSON.stringify({ words: daysList.flat(), days: daysList, totalWords: unknown.length });
+
+  var xhr = new XMLHttpRequest();
+  xhr.open('POST', 'https://pdf.ray2.asia/');
+  xhr.setRequestHeader('Content-Type', 'application/json');
+  xhr.responseType = 'blob';
+  xhr.onload = function() {
+    if (xhr.status === 200) {
+      var url = URL.createObjectURL(xhr.response);
+      var a = document.createElement('a');
+      a.href = url;
+      a.download = '词汇记忆计划_' + curDays + '天.pdf';
+      a.click();
+      URL.revokeObjectURL(url);
+    } else {
+      alert('生成失败，请重试');
+    }
+    btn.textContent = '🖨️ 导出 PDF'; btn.disabled = false;
+  };
+  xhr.onerror = function() {
+    alert('网络错误');
+    btn.textContent = '🖨️ 导出 PDF'; btn.disabled = false;
+  };
+  xhr.send(payload);
+}
 
 function resetAll() {
   document.getElementById('filter-area').style.display = 'none';
