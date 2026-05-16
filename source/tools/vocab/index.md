@@ -113,6 +113,7 @@ comments: false
       <span id="plan-stats"></span>
       <button class="ts-btn" style="width:auto;padding:10px 20px;display:inline-block;margin-right:8px" onclick="printPlan(this)" title="适用于电脑端非Safari浏览器，排版精美速度快">🖨️ 打印导出PDF</button>
       <button id="_cloud_btn" class="ts-btn" style="width:auto;padding:10px 20px;display:inline-block;background:#43a047" onclick="cloudPlan(this)" title="适用于所有端，速度稍慢">☁️ 云导出PDF</button>
+      <span style="font-size:.75rem;color:var(--card-meta,#999);margin-left:6px">如果提示网络错误别着急，稍等下就好了噢~</span>
     </div>
     <div id="plan-content"></div>
   </div>
