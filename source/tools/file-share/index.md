@@ -8,8 +8,8 @@ comments: false
 
 {% raw %}
 <div id="file-share-app">
-  <div class="tabs">
-    <button class="tab active" onclick="switchTab('email')">📧 邮箱发送</button>
+  <div class="fs-tabs">
+    <button class="fs-tab active" onclick="switchTab('email')">📧 邮箱发送</button>
     <button class="tab" onclick="switchTab('code')">🔑 提取码</button>
   </div>
 
@@ -28,12 +28,12 @@ comments: false
   </div>
 
   <div id="panel-code" class="panel">
-    <div class="sub-tabs">
-      <button class="sub-tab active" onclick="switchSubTab('up')">📤 上传</button>
-      <button class="sub-tab" onclick="switchSubTab('down')">📥 下载</button>
+    <div class="fs-subtabs">
+      <button class="fs-subtab active" onclick="switchSubTab('up')">📤 上传</button>
+      <button class="fs-subtab" onclick="switchSubTab('down')">📥 下载</button>
     </div>
 
-    <div id="sub-up" class="sub-panel active">
+    <div id="sub-up" class="fs-subpanel active">
       <div class="field">
         <label>选择文件</label>
         <input type="file" id="code-file" multiple>
@@ -52,7 +52,7 @@ comments: false
       <div class="result" id="up-result"></div>
     </div>
 
-    <div id="sub-down" class="sub-panel">
+    <div id="sub-down" class="fs-subpanel">
       <div class="field">
         <label>6位提取码</label>
         <input id="code-inp" maxlength="6" placeholder="输入6位提取码" oninput="this.value=this.value.replace(/\D/g,'')">
@@ -124,7 +124,7 @@ async function tryAdmin() {
 function adminPwdField() { return _adminPwd ? _adminPwd : ''; }
 
 function switchTab(t) {
-  var tabs = document.querySelectorAll('#file-share-app > .tabs > .tab');
+  var tabs = document.querySelectorAll('#file-share-app > .fs-tabs > .fs-tab');
   for (var i = 0; i < tabs.length; i++) {
     tabs[i].classList.toggle('active', tabs[i].textContent.indexOf(t === 'email' ? '邮箱' : '提取') >= 0);
   }
@@ -134,11 +134,11 @@ function switchTab(t) {
 }
 
 function switchSubTab(t) {
-  var tabs = document.querySelectorAll('.sub-tab');
+  var tabs = document.querySelectorAll('.fs-subtab');
   for (var i = 0; i < tabs.length; i++) {
     tabs[i].classList.toggle('active', tabs[i].textContent.indexOf(t === 'up' ? '上传' : '下载') >= 0);
   }
-  var panels = document.querySelectorAll('.sub-panel');
+  var panels = document.querySelectorAll('.fs-subpanel');
   for (var i = 0; i < panels.length; i++) panels[i].classList.remove('active');
   document.getElementById('sub-' + t).classList.add('active');
 }
@@ -312,11 +312,11 @@ function sz(b) {
 </script>
 
 <style>
-#file-share-app .sub-tabs { display:flex; gap:0; margin-bottom:16px; }
-#file-share-app .sub-tab { flex:1; padding:10px; border:1px solid var(--border-color,#ddd); background:var(--card-bg,#f9f9f9); cursor:pointer; font-size:.9rem; color:var(--text-meta,#999); transition:all .2s; text-align:center; }
-#file-share-app .sub-tab:first-child { border-radius:6px 0 0 6px; }
-#file-share-app .sub-tab:last-child { border-radius:0 6px 6px 0; }
-#file-share-app .sub-tab.active { background:var(--theme-color,#425aef); color:#fff; border-color:var(--theme-color,#425aef); }
+#file-share-app .fs-subtabs { display:flex; gap:0; margin-bottom:16px; }
+#file-share-app .fs-subtab { flex:1; padding:10px; border:1px solid var(--border-color,#ddd); background:var(--card-bg,#f9f9f9); cursor:pointer; font-size:.9rem; color:var(--text-meta,#999); transition:all .2s; text-align:center; }
+#file-share-app .fs-subtab:first-child { border-radius:6px 0 0 6px; }
+#file-share-app .fs-subtab:last-child { border-radius:0 6px 6px 0; }
+#file-share-app .fs-subtab.active { background:var(--theme-color,#425aef); color:#fff; border-color:var(--theme-color,#425aef); }
 .field { margin-bottom:14px; }
 .field label { display:block; font-size:.85rem; font-weight:600; margin-bottom:4px; color:var(--text-color,#333); }
 .field input[type="file"] { font-size:.85rem; }
@@ -337,9 +337,9 @@ function sz(b) {
 .admin-bar .admin-toggle { font-size:.78rem; color:var(--text-meta,#999); cursor:pointer; text-decoration:none; }
 .admin-bar .admin-toggle:hover { color:var(--theme-color,#425aef); }
 .admin-badge { display:none; font-size:.78rem; color:var(--theme-color,#425aef); font-weight:600; }
-.sub-panel { display:none; }
-.sub-panel.active { display:block; }
-#sub-up.sub-panel.active { display:block; }
-#sub-down.sub-panel.active { display:block; }
+.fs-subpanel { display:none; }
+.fs-subpanel.active { display:block; }
+#sub-up.fs-subpanel.active { display:block; }
+#sub-down.fs-subpanel.active { display:block; }
 </style>
 {% endraw %}
