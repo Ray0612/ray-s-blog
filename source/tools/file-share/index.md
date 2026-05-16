@@ -6,6 +6,7 @@ comments: false
 
 <link rel="stylesheet" href="/css/tools.css">
 
+{% raw %}
 <div id="file-share-app">
   <div class="fs-tabs">
     <button class="fs-tab active" onclick="switchTab('email')">📧 邮箱发送</button>
@@ -257,7 +258,12 @@ function sz(b) {
 </script>
 
 <style>
-#file-share-app .sub-tabs { display:flex; gap:0; margin-bottom:16px; }
+#file-share-app .fs-tabs { display:flex; gap:0; margin-bottom:16px; }
+.fs-tab { flex:1; padding:10px; border:1px solid var(--border-color,#ddd); background:var(--card-bg,#f9f9f9); cursor:pointer; font-size:.9rem; color:var(--text-meta,#999); transition:all .2s; text-align:center; }
+.fs-tab:first-child { border-radius:6px 0 0 6px; }
+.fs-tab:last-child { border-radius:0 6px 6px 0; }
+.fs-tab.active { background:var(--theme-color,#425aef); color:#fff; border-color:var(--theme-color,#425aef); }
+.sub-tabs { display:flex; gap:0; margin-bottom:16px; }
 #file-share-app .sub-tab { flex:1; padding:10px; border:1px solid var(--border-color,#ddd); background:var(--card-bg,#f9f9f9); cursor:pointer; font-size:.9rem; color:var(--text-meta,#999); transition:all .2s; text-align:center; }
 #file-share-app .sub-tab:first-child { border-radius:6px 0 0 6px; }
 #file-share-app .sub-tab:last-child { border-radius:0 6px 6px 0; }
@@ -282,3 +288,5 @@ function sz(b) {
 #sub-up.sub-panel.active { display:block; }
 #sub-down.sub-panel.active { display:block; }
 </style>
+
+{% endraw %}
