@@ -220,5 +220,9 @@ function sz(b) {
 .num-picker button:hover { background:var(--border-color,#eee); }
 .num-picker span { font-size:1.2rem; font-weight:600; min-width:24px; text-align:center; color:var(--text-color,#333); }
 .num-hint { font-size:.85rem !important; font-weight:400 !important; color:var(--text-meta,#999) !important; }
+.sub-panel { display:none; }
+.sub-panel.active { display:block; }
+#sub-up.sub-panel.active { display:block; }
+#sub-down.sub-panel.active { display:block; }
 </style>
 {% endraw %}
