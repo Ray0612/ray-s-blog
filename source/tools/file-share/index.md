@@ -285,6 +285,8 @@ function sz(b) {
 .file-item-size { font-size:.8rem; color:var(--text-meta,#999); white-space:nowrap; }
 .file-dl-btn { padding:4px 14px; border:none; border-radius:4px; background:var(--theme-color,#425aef); color:#fff; cursor:pointer; font-size:.82rem; white-space:nowrap; }
 .file-dl-btn:hover { opacity:.85; }
+#code-inp { width:100%; padding:10px 12px; border:1px solid var(--border-color,#ddd); border-radius:6px; font-size:.9rem; background:var(--card-bg,#fff); color:var(--text-color,#333); outline:none; box-sizing:border-box; }
+#code-inp:focus { border-color:var(--theme-color,#425aef); }
 .sub-panel { display:none; }
 .sub-panel.active { display:block; }
 #sub-up.sub-panel.active { display:block; }
