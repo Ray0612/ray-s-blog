@@ -111,8 +111,8 @@ comments: false
   <div id="step-plan" style="display:none">
     <div class="plan-header">
       <span id="plan-stats"></span>
-      <button class="ts-btn" style="width:auto;padding:10px 20px;display:inline-block;margin-right:8px" onclick="printPlan()">🖨️ 打印导出</button>
-      <button class="ts-btn" style="width:auto;padding:10px 20px;display:inline-block;background:#43a047" onclick="cloudPlan()">☁️ 云生成 PDF</button>
+      <button class="ts-btn" style="width:auto;padding:10px 20px;display:inline-block;margin-right:8px" onclick="printPlan(this)">🖨️ 打印导出</button>
+      <button id="_cloud_btn" class="ts-btn" style="width:auto;padding:10px 20px;display:inline-block;background:#43a047" onclick="cloudPlan(this)">☁️ 云生成 PDF</button>
     </div>
     <div id="plan-content"></div>
   </div>
@@ -352,11 +352,10 @@ function printPlan() {
   xhr.send(payload);
 }
 
-function cloudPlan() {
+function cloudPlan(btn) {
   var unknown = getUnknown();
   if (unknown.length === 0) return;
-  var btns = document.querySelectorAll('.plan-header .ts-btn');
-  var btn = btns[1];
+  if (!btn) btn = document.querySelector('#_cloud_btn');
   btn.textContent = '⏳ 云生成中...'; btn.disabled = true;
 
   var perDay = Math.ceil(unknown.length / curDays);
