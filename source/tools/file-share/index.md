@@ -2,6 +2,7 @@
 title: 文件传输
 date: 2026-05-16
 comments: false
+aside: false
 ---
 
 <link rel="stylesheet" href="/css/tools.css">
