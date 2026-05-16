@@ -16,7 +16,7 @@ comments: false
   <div id="panel-email" class="panel active">
     <div class="field">
       <label>选择文件</label>
-      <input type="file" id="email-file">
+      <input type="file" id="email-file" multiple>
       <div class="file-info" id="email-file-info"></div>
     </div>
     <div class="field">
@@ -36,7 +36,7 @@ comments: false
     <div id="sub-up" class="sub-panel active">
       <div class="field">
         <label>选择文件</label>
-        <input type="file" id="code-file">
+        <input type="file" id="code-file" multiple>
         <div class="file-info" id="code-file-info"></div>
       </div>
       <div class="field">
@@ -60,8 +60,8 @@ comments: false
       <button class="ts-btn" id="info-btn" onclick="check()">🔍 查询文件</button>
       <div class="result" id="info-result"></div>
       <div id="down-area" style="display:none">
-        <button class="ts-btn" onclick="downFile()">📥 下载文件</button>
-        <div class="result" id="down-result"></div>
+        <div id="file-list"></div>
+        <div style="margin-top:12px;text-align:center;font-size:.8rem;color:var(--text-meta,#999)" id="remain-hint"></div>
       </div>
     </div>
   </div>
@@ -102,20 +102,24 @@ document.getElementById('code-file').onchange = function() { fi(this, 'code-file
 function fi(inp, id) {
   var el = document.getElementById(id);
   if (!inp.files || !inp.files[0]) { el.textContent = ''; return; }
-  var f = inp.files[0];
-  if (f.size > 50 * 1024 * 1024) { el.innerHTML = '<span style="color:#e53935">文件超过50MB限制</span>'; inp.value = ''; return; }
-  el.textContent = f.name + ' (' + sz(f.size) + ')';
+  var total = 0, names = [];
+  for (var i = 0; i < inp.files.length; i++) {
+    total += inp.files[i].size;
+    names.push(inp.files[i].name);
+  }
+  if (total > 50 * 1024 * 1024) { el.innerHTML = '<span style="color:#e53935">文件总大小超过50MB限制</span>'; inp.value = ''; return; }
+  el.innerHTML = '<strong>' + inp.files.length + ' 个文件</strong>，共 ' + sz(total) + '<br>' + names.join('、');
 }
 
 async function sendEmail() {
-  var f = document.getElementById('email-file').files[0];
+  var files = document.getElementById('email-file').files;
   var e = document.getElementById('email-addr').value.trim();
-  if (!f) return sr('email', '请选择文件', 'e');
+  if (!files || files.length === 0) return sr('email', '请选择文件', 'e');
   if (!e) return sr('email', '请填写收件人邮箱', 'e');
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e)) return sr('email', '邮箱格式不正确', 'e');
   btn('email-btn', 1, '⏳ 上传发送中...');
   var fd = new FormData();
-  fd.append('file', f);
+  for (var fi = 0; fi < files.length; fi++) fd.append('file', files[fi]);
   fd.append('email', e);
   try {
     var r = await fetch(API + '/api/send-email', { method: 'POST', body: fd });
@@ -127,17 +131,20 @@ async function sendEmail() {
 }
 
 async function upFile() {
-  var f = document.getElementById('code-file').files[0];
-  if (!f) return sr('up', '请选择文件', 'e');
+  var files = document.getElementById('code-file').files;
+  if (!files || files.length === 0) return sr('up', '请选择文件', 'e');
   btn('up-btn', 1, '⏳ 上传中...');
   var fd = new FormData();
-  fd.append('file', f);
+  for (var fi = 0; fi < files.length; fi++) fd.append('file', files[fi]);
   fd.append('maxDownloads', _dc);
   try {
     var r = await fetch(API + '/api/upload', { method: 'POST', body: fd });
     var d = await r.json();
     if (d.code) {
-      sr('up', '<div style="font-size:.9rem;margin-bottom:4px">提取码</div><div style="font-size:2.5rem;font-weight:bold;letter-spacing:8px;margin:4px 0">' + d.code + '</div><div style="font-size:.8rem;opacity:.7">可下载 ' + _dc + ' 次</div>', 's');
+      var fileCount = d.files ? d.files.length : 1;
+      var totalSize = 0;
+      if (d.files) for (var fi = 0; fi < d.files.length; fi++) totalSize += d.files[fi].size;
+      sr('up', '<div style="font-size:.9rem;margin-bottom:4px">提取码</div><div style="font-size:2.5rem;font-weight:bold;letter-spacing:8px;margin:4px 0">' + d.code + '</div><div style="font-size:.8rem;opacity:.7">' + fileCount + ' 个文件，共 ' + sz(totalSize) + '<br>可下载 ' + _dc + ' 次</div>', 's');
     } else {
       sr('up', '❌ ' + (d.error || '上传失败'), 'e');
     }
@@ -152,10 +159,27 @@ async function check() {
   try {
     var r = await fetch(API + '/api/info?code=' + code);
     var d = await r.json();
-    if (d.fileName) {
-      sr('info', '📄 ' + d.fileName + '<br>📦 ' + sz(parseInt(d.fileSize)) + '<br>📊 剩余次数: ' + d.remaining, 's');
+    if (d.files && d.files.length > 0) {
+      sr('info', '📊 剩余下载次数: ' + d.remaining, 's');
+      var listHtml = '';
+      for (var fi = 0; fi < d.files.length; fi++) {
+        listHtml += '<div class="file-item"><span class="file-item-name">📄 ' + d.files[fi].name + '</span><span class="file-item-size">' + sz(d.files[fi].size) + '</span><button class="file-dl-btn" data-code="' + code + '" data-idx="' + fi + '" data-remaining="' + d.remaining + '" data-total="' + d.files.length + '">下载</button></div>';
+      }
+      document.getElementById('file-list').innerHTML = listHtml;
       document.getElementById('down-area').style.display = 'block';
-      document.getElementById('down-area').dataset.code = code;
+      document.getElementById('remain-hint').textContent = '剩余下载次数: ' + d.remaining + '，下载全部文件后自动扣减';
+
+      // 绑定下载按钮事件
+      var btns = document.querySelectorAll('.file-dl-btn');
+      for (var fi = 0; fi < btns.length; fi++) {
+        btns[fi].onclick = function() {
+          var code = this.dataset.code;
+          var idx = this.dataset.idx;
+          var remaining = parseInt(this.dataset.remaining);
+          var total = parseInt(this.dataset.total);
+          downFile(code, idx, remaining, total);
+        };
+      }
     } else {
       sr('info', '❌ ' + (d.error || '无效'), 'e');
       document.getElementById('down-area').style.display = 'none';
@@ -164,14 +188,10 @@ async function check() {
   btn('info-btn', 0, '🔍 查询文件');
 }
 
-async function downFile() {
-  var code = document.getElementById('down-area').dataset.code;
-  if (!code) return;
-  var btn = document.querySelector('#down-area .ts-btn');
-  btn.disabled = 1; btn.textContent = '⏳ 下载中...';
+async function downFile(code, idx, remaining, total) {
   try {
-    var r = await fetch(API + '/api/download?code=' + code);
-    if (!r.ok) { var d = await r.json(); sr('down', '❌ ' + (d.error || '下载失败'), 'e'); return; }
+    var r = await fetch(API + '/api/download?code=' + code + '&idx=' + idx);
+    if (!r.ok) { var d = await r.json(); alert('❌ ' + (d.error || '下载失败')); return; }
     var blob = await r.blob();
     var dispo = r.headers.get('Content-Disposition') || '';
     var m = dispo.match(/filename="?([^";\n]+)"?/);
@@ -181,10 +201,43 @@ async function downFile() {
     a.download = fn;
     a.click();
     URL.revokeObjectURL(a.href);
-    sr('down', '✅ 下载成功！', 's');
-    document.getElementById('down-area').style.display = 'none';
-  } catch (err) { sr('down', '❌ 下载失败', 'e'); }
-  btn.disabled = 0; btn.textContent = '📥 下载文件';
+
+    // 所有文件都下载完毕后才扣减次数
+    var doneBtns = document.querySelectorAll('.file-dl-btn[style*="opacity:0.4"]');
+    var totalBtns = document.querySelectorAll('.file-dl-btn');
+    var downloaded = 0;
+    for (var i = 0; i < totalBtns.length; i++) {
+      if (totalBtns[i].style.opacity === '0.4') downloaded++;
+    }
+
+    // 标记当前文件已下载
+    for (var i = 0; i < totalBtns.length; i++) {
+      if (totalBtns[i].dataset.idx === idx) {
+        totalBtns[i].style.opacity = '0.4';
+        totalBtns[i].textContent = '✅';
+        totalBtns[i].disabled = true;
+      }
+    }
+
+    downloaded++;
+
+    if (downloaded >= total) {
+      // 全部下载完成，扣减次数
+      var r2 = await fetch(API + '/api/complete-download', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code: code }),
+      });
+      var d2 = await r2.json();
+      if (d2.success) {
+        if (d2.remaining > 0) {
+          document.getElementById('remain-hint').textContent = '✅ 已扣减1次，剩余 ' + d2.remaining + ' 次';
+        } else {
+          document.getElementById('remain-hint').textContent = '✅ 下载次数已用完，文件已销毁';
+        }
+      }
+    }
+  } catch (err) { alert('❌ 下载失败'); }
 }
 
 function sr(p, m, t) {
@@ -220,6 +273,11 @@ function sz(b) {
 .num-picker button:hover { background:var(--border-color,#eee); }
 .num-picker span { font-size:1.2rem; font-weight:600; min-width:24px; text-align:center; color:var(--text-color,#333); }
 .num-hint { font-size:.85rem !important; font-weight:400 !important; color:var(--text-meta,#999) !important; }
+.file-item { display:flex; align-items:center; padding:10px 12px; border:1px solid var(--border-color,#eee); border-radius:6px; margin-bottom:6px; gap:8px; }
+.file-item-name { flex:1; font-size:.85rem; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; color:var(--text-color,#333); }
+.file-item-size { font-size:.8rem; color:var(--text-meta,#999); white-space:nowrap; }
+.file-dl-btn { padding:4px 14px; border:none; border-radius:4px; background:var(--theme-color,#425aef); color:#fff; cursor:pointer; font-size:.82rem; white-space:nowrap; }
+.file-dl-btn:hover { opacity:.85; }
 .sub-panel { display:none; }
 .sub-panel.active { display:block; }
 #sub-up.sub-panel.active { display:block; }
