@@ -310,46 +310,34 @@ function generatePlan() {
 function printPlan() {
   var unknown = getUnknown();
   if (unknown.length === 0) return;
-  var btn = document.querySelector('.plan-header .ts-btn');
-  btn.textContent = '⏳ 生成中...'; btn.disabled = true;
-
   var perDay = Math.ceil(unknown.length / curDays);
-  var daysList = [];
+  var html = '<!DOCTYPE html><html><head><meta charset="utf-8"><title>词汇记忆计划</title>';
+  html += '<style>*{margin:0;padding:0;box-sizing:border-box}';
+  html += 'body{font-family:\"PingFang SC\",\"Hiragino Sans GB\",\"Microsoft YaHei\",sans-serif}';
+  html += '.p{width:190mm;margin:0 auto;padding:15mm 10mm}';
+  html += '.d{page-break-before:always}.d:first-child{page-break-before:auto}';
+  html += '.d h2{font-size:14pt;text-align:center;border-bottom:1px solid #000;padding-bottom:4px;margin-bottom:8px}';
+  html += '.g{display:flex;flex-wrap:wrap}.g>div{width:20%;padding-right:4px}';
+  html += '.w{font-size:9pt;font-weight:bold;color:#000;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}';
+  html += '.m{font-size:8pt;color:#888;margin-bottom:4px}';
+  html += '@page{margin:0}</style></head><body><div class="p">';
   for (var d = 0; d < curDays; d++) {
     var start = d * perDay;
     var dayWords = unknown.slice(start, start + perDay);
     if (dayWords.length === 0) break;
-    var list = [];
+    html += '<div class="d"><h2>Day ' + (d + 1) + ' — ' + dayWords.length + ' 词</h2><div class="g">';
     for (var i = 0; i < dayWords.length; i++) {
-      list.push({ word: words[dayWords[i]].word, meaning: words[dayWords[i]].meaning });
+      html += '<div><div class="w">' + esc(words[dayWords[i]].word) + '</div><div class="m">' + esc(words[dayWords[i]].meaning) + '</div></div>';
     }
-    daysList.push(list);
+    html += '</div></div>';
   }
-
-  var payload = JSON.stringify({ words: daysList.flat(), days: daysList, totalWords: unknown.length });
-
-  var xhr = new XMLHttpRequest();
-  xhr.open('POST', 'https://pdf.ray2.asia/');
-  xhr.setRequestHeader('Content-Type', 'application/json');
-  xhr.responseType = 'blob';
-  xhr.onload = function() {
-    if (xhr.status === 200) {
-      var url = URL.createObjectURL(xhr.response);
-      var a = document.createElement('a');
-      a.href = url;
-      a.download = '词汇记忆计划_' + curDays + '天.pdf';
-      a.click();
-      URL.revokeObjectURL(url);
-    } else {
-      alert('生成失败，请重试');
-    }
-    btn.textContent = '🖨️ 导出 PDF'; btn.disabled = false;
-  };
-  xhr.onerror = function() {
-    alert('网络错误');
-    btn.textContent = '🖨️ 导出 PDF'; btn.disabled = false;
-  };
-  xhr.send(payload);
+  html += '</div></body></html>';
+  var w = window.open('', '_blank');
+  if (!w) { alert('请允许弹出窗口'); return; }
+  w.document.write(html);
+  w.document.close();
+  w.focus();
+  setTimeout(function() { w.print(); }, 300);
 }
 
 function cloudPlan(btn) {
