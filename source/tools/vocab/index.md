@@ -329,7 +329,7 @@ function cloudPlan(btn) {
   }
 
   var xhr = new XMLHttpRequest();
-  xhr.open('POST', 'https://ray2.asia/pdf/');
+  xhr.open('POST', 'https://pdf.ray2.asia/');
   xhr.setRequestHeader('Content-Type', 'application/json');
   xhr.responseType = 'blob';
   xhr.onload = function() {
