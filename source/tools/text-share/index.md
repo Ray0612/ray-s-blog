@@ -2,7 +2,6 @@
 title: 文字传输
 date: 2026-05-14
 comments: false
-aside: false
 ---
 
 <link rel="stylesheet" href="/css/tools.css">
