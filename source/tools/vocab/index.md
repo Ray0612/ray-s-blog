@@ -122,7 +122,7 @@ comments: false
 var CATS = [
   { id: 'cet4', name: '四级词汇', file: '/files/vocab/四级词汇.csv', count: 4449 },
 ];
-var words = [], remaining = [], knownSet = new Set();
+var words = [], knownSet = new Set();
 var curDays = 0, curMode = '';
 var batchPage = 0, BATCH_SIZE = 30;
 var batchWordList = [];
