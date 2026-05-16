@@ -135,6 +135,8 @@ function loadCats() {
   }
 }
 loadCats();
+// 预热 PDF 生成 Worker，避免云导出冷启动超时
+fetch('https://pdf.ray2.asia/', { method: 'POST', body: '{"days":[[0]],"planDays":1}', headers: {'Content-Type':'application/json'} }).catch(function(){});
 
 function selectCat(idx) {
   document.querySelectorAll('.cat-card').forEach(function(el) { el.classList.toggle('active', parseInt(el.dataset.idx) === idx); });
