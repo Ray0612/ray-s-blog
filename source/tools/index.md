@@ -25,6 +25,6 @@ comments: false
 .tool-card{display:block;padding:28px 20px;border-radius:12px;border:1px solid var(--border-color,#eee);text-align:center;text-decoration:none;transition:all .25s ease;background:var(--card-bg,#fff)}
 .tool-card:hover{transform:translateY(-6px);border-color:var(--theme-color,#425aef);box-shadow:0 8px 24px rgba(66,90,239,.12)}
 .tool-icon{font-size:2.2rem;margin-bottom:10px}
-.tool-name{font-weight:600;color:var(--text-color,#333);font-size:1.05rem}
-.tool-desc{font-size:.82rem;color:var(--text-meta,#999);margin-top:6px;line-height:1.5}
+.tool-name{font-weight:600;color:var(--font-color,#333);font-size:1.05rem}
+.tool-desc{font-size:.82rem;color:var(--card-meta,#999);margin-top:6px;line-height:1.5}
 </style>
