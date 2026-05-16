@@ -121,8 +121,9 @@ comments: false
 <script>
 var CATS = [
   { id: 'cet4', name: '四级词汇', file: '/files/vocab/四级词汇.csv', count: 4449 },
+  { id: 'cet6', name: '六级词汇', file: '/files/vocab/六级词汇.csv', count: 2084 },
 ];
-var words = [], knownSet = new Set();
+var words = [], knownSet = new Set(), currentCat = 'cet4';
 var curDays = 0, curMode = '';
 var batchPage = 0, BATCH_SIZE = 30;
 var batchWordList = [];
@@ -140,6 +141,7 @@ fetch('https://pdf.ray2.asia/', { method: 'POST', body: '{"days":[[0]],"planDays
 
 function selectCat(idx) {
   document.querySelectorAll('.cat-card').forEach(function(el) { el.classList.toggle('active', parseInt(el.dataset.idx) === idx); });
+  currentCat = CATS[idx].id;
   loadCSV(CATS[idx].file);
 }
 
@@ -349,7 +351,7 @@ function cloudPlan(btn) {
     btn.textContent = '☁️ 云导出PDF'; btn.disabled = false;
   };
   xhr.onerror = function() { alert('网络错误，请重试'); btn.textContent = '☁️ 云导出PDF'; btn.disabled = false; };
-  xhr.send(JSON.stringify({ days: daysList, planDays: curDays }));
+  xhr.send(JSON.stringify({ days: daysList, planDays: curDays, wordSet: currentCat }));
 }
 
 function resetAll() {
