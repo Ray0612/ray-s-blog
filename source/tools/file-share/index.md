@@ -270,7 +270,9 @@ function sz(b) {
 #file-share-app .sub-tab.active { background:var(--theme-color,#425aef); color:#fff; border-color:var(--theme-color,#425aef); }
 .field { margin-bottom:14px; }
 .field label { display:block; font-size:.85rem; font-weight:600; margin-bottom:4px; color:var(--text-color,#333); }
-.field input[type="file"] { font-size:.85rem; }
+.field input[type="file"] { font-size:.85rem; color:var(--text-color,#333); }
+.field input[type="file"]::file-selector-button { padding:6px 16px; border:none; border-radius:4px; background:var(--theme-color,#425aef); color:#fff; cursor:pointer; font-size:.85rem; margin-right:10px; }
+.field input[type="file"]::file-selector-button:hover { opacity:.85; }
 .field input[type="email"], .field input[type="text"] { width:100%; padding:10px 12px; border:1px solid var(--border-color,#ddd); border-radius:6px; font-size:.9rem; background:var(--card-bg,#fff); color:var(--text-color,#333); outline:none; box-sizing:border-box; }
 .file-info { font-size:.82rem; color:var(--text-meta,#666); margin-top:4px; }
 .num-picker { display:flex; align-items:center; gap:8px; }
