@@ -18,6 +18,12 @@ comments: false
   <div class="tool-desc">邮箱发送或提取码下载，最大50MB，支持多人提取</div>
 </a>
 
+<a href="/tools/vocab/" class="tool-card">
+  <div class="tool-icon">📖</div>
+  <div class="tool-name">词汇记忆助手</div>
+  <div class="tool-desc">四级/六级词汇记忆计划生成，三种筛词模式，导出PDF</div>
+</a>
+
 </div>
 
 <style>
