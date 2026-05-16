@@ -7,12 +7,16 @@ comments: false
 <div class="tool-grid">
 
 <a href="/tools/text-share/" class="tool-card">
-  <div class="tool-icon">📤</div>
+  <div class="tool-icon">📝</div>
   <div class="tool-name">文本传输助手</div>
   <div class="tool-desc">上传文字生成提取码，5分钟有效，端对端传输</div>
 </a>
 
-<!-- 以后更多工具可以加在这里 -->
+<a href="/tools/file-share/" class="tool-card">
+  <div class="tool-icon">📁</div>
+  <div class="tool-name">文件传输助手</div>
+  <div class="tool-desc">邮箱发送或提取码下载，最大50MB，支持多人提取</div>
+</a>
 
 </div>
 
