@@ -124,6 +124,7 @@ var CATS = [
 var words = [], remaining = [], knownSet = new Set();
 var curDays = 0, curMode = '';
 var batchPage = 0, BATCH_SIZE = 30;
+var batchWordList = [];
 
 function loadCats() {
   var el = document.getElementById('cat-list');
@@ -211,31 +212,30 @@ function cardAction(know) {
 
 // === Mode B: 批量 ===
 function startBatch() {
-  batchPage = 0; document.getElementById('mode-batch').style.display = 'block'; renderBatch();
-}
-
-function getBatchTotalPages() {
-  var u = getUnknown();
-  return Math.ceil(u.length / BATCH_SIZE) || 1;
+  batchWordList = getUnknown();
+  batchPage = 0;
+  document.getElementById('mode-batch').style.display = 'block';
+  renderBatch();
 }
 
 function renderBatch() {
-  var u = getUnknown();
-  var totalPages = Math.ceil(u.length / BATCH_SIZE) || 1;
+  var total = batchWordList.length;
+  var totalPages = Math.ceil(total / BATCH_SIZE) || 1;
   if (batchPage >= totalPages) batchPage = totalPages - 1;
   if (batchPage < 0) batchPage = 0;
 
   var start = batchPage * BATCH_SIZE;
-  var pageWords = u.slice(start, start + BATCH_SIZE);
+  var pageWords = batchWordList.slice(start, start + BATCH_SIZE);
 
   var html = '<div class="batch-grid">';
   for (var i = 0; i < pageWords.length; i++) {
     var idx = pageWords[i];
-    html += '<label class="batch-item"><input type="checkbox" class="batch-cb" data-idx="' + idx + '"><span class="batch-word">' + esc(words[idx].word) + '</span><span class="batch-mean">' + esc(words[idx].meaning) + '</span></label>';
+    var known = knownSet.has(idx);
+    html += '<label class="batch-item' + (known ? ' batch-known' : '') + '"><input type="checkbox" class="batch-cb" data-idx="' + idx + '" ' + (known ? 'checked disabled' : '') + '><span class="batch-word">' + esc(words[idx].word) + '</span><span class="batch-mean">' + esc(words[idx].meaning) + '</span></label>';
   }
   html += '</div>';
   document.getElementById('batch-words').innerHTML = html;
-  document.getElementById('batch-info').textContent = (batchPage + 1) + '/' + totalPages + ' 页 | ' + u.length + ' 词';
+  document.getElementById('batch-info').textContent = (batchPage + 1) + '/' + totalPages + ' 页 | 总计 ' + total + ' 词 | 已掌握 ' + knownSet.size;
   updateStats();
 }
 
@@ -246,12 +246,11 @@ function batchJump() {
   if (p > 0) { batchPage = p - 1; renderBatch(); }
 }
 
-function batchAll() { document.querySelectorAll('.batch-cb').forEach(function(el) { el.checked = true; }); }
-function batchClear() { document.querySelectorAll('.batch-cb').forEach(function(el) { el.checked = false; }); }
+function batchAll() { document.querySelectorAll('.batch-cb:not(:disabled)').forEach(function(el) { el.checked = true; }); }
+function batchClear() { document.querySelectorAll('.batch-cb:not(:disabled)').forEach(function(el) { el.checked = false; }); }
 
 function batchSubmit() {
-  document.querySelectorAll('.batch-cb:checked').forEach(function(el) { knownSet.add(parseInt(el.dataset.idx)); });
-  batchPage++;
+  document.querySelectorAll('.batch-cb:checked:not(:disabled)').forEach(function(el) { knownSet.add(parseInt(el.dataset.idx)); });
   renderBatch();
 }
 
@@ -368,6 +367,7 @@ function esc(s) { return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').repl
 .batch-item { display:flex; align-items:center; gap:8px; padding:6px 10px; border-radius:4px; cursor:pointer; transition:background .15s; }
 .batch-item:hover { background:rgba(66,90,239,.08); }
 .batch-item:hover .batch-word { color:var(--theme-color,#425aef); }
+.batch-known { opacity:.4; pointer-events:none; }
 .batch-cb { width:16px; height:16px; cursor:pointer; accent-color:var(--theme-color,#425aef); }
 .batch-word { font-weight:500; min-width:120px; color:var(--font-color,#333); transition:color .15s; }
 .batch-mean { font-size:.83rem; color:var(--card-meta,#666); }
