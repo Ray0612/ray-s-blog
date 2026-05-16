@@ -6,7 +6,6 @@ comments: false
 
 <link rel="stylesheet" href="/css/tools.css">
 
-{% raw %}
 <div id="file-share-app">
   <div class="fs-tabs">
     <button class="fs-tab active" onclick="switchTab('email')">📧 邮箱发送</button>
@@ -342,4 +341,3 @@ function sz(b) {
 #sub-up.fs-subpanel.active { display:block; }
 #sub-down.fs-subpanel.active { display:block; }
 </style>
-{% endraw %}
