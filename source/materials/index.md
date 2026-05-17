@@ -21,8 +21,14 @@ comments: false
 .qa-name{font-weight:600;font-size:.9rem;color:var(--text-color,#333)}
 .qa-time{font-size:.78rem;color:var(--text-meta,#999);margin:2px 0 8px}
 .qa-question{padding:10px 14px;background:var(--second-bg,#f5f5f5);border-radius:8px;font-size:.9rem;color:var(--text-color,#333);margin-bottom:8px;white-space:pre-wrap}
-.qa-answer{padding:10px 14px;margin-left:20px;border-left:3px solid var(--theme-color,#425aef);font-size:.9rem;color:var(--text-color,#333);white-space:pre-wrap}
+.qa-answer{padding:10px 14px;margin-left:20px;border-left:3px solid var(--theme-color,#425aef);font-size:.9rem;color:var(--theme-color,#425aef);white-space:pre-wrap}
+@media(prefers-color-scheme:dark){.qa-answer{color:#7aa2f7}}
 .qa-answer-label{font-size:.8rem;color:var(--theme-color,#425aef);font-weight:600;margin-bottom:4px}
+.qa-follow-item{margin:8px 0 8px 28px;padding:8px 0 8px 12px;border-left:2px solid var(--border-color,#ddd);background:var(--second-bg,#f9f9f9);border-radius:0 6px 6px 0}
+.qa-follow-question{padding:6px 10px;font-size:.88rem;white-space:pre-wrap;color:var(--text-color,#000)}
+.qa-follow-form{margin-top:8px;margin-left:20px;padding:10px;border:1px dashed var(--border-color,#ccc);border-radius:6px}
+.qa-follow-form textarea{width:100%;padding:8px;border:1px solid var(--border-color,#ddd);border-radius:6px;font-size:.85rem;background:var(--card-bg,#fff);color:var(--text-color,#333);outline:none;box-sizing:border-box;font-family:inherit;resize:vertical;min-height:50px}
+.qa-follow-form textarea:focus{border-color:var(--theme-color,#425aef)}
 .qa-form{margin-top:24px;padding:20px;border:1px solid var(--border-color,#eee);border-radius:8px}
 .qa-form input,.qa-form textarea{width:100%;padding:10px;border:1px solid var(--border-color,#ddd);border-radius:6px;margin-bottom:8px;font-size:.9rem;background:var(--card-bg,#fff);color:var(--text-color,#333);outline:none;box-sizing:border-box;font-family:inherit}
 .qa-form input:focus,.qa-form textarea:focus{border-color:var(--theme-color,#425aef)}
@@ -187,7 +193,32 @@ function loadQA() {
       html += '<div class="qa-time">' + new Date(q.created_at).toLocaleString() + '</div>';
       html += '<div class="qa-question">' + esc(q.question) + (q.question_image ? '<br><img src="' + q.question_image + '" style="max-width:100%;max-height:300px;border-radius:6px;margin-top:8px;cursor:pointer" onclick="zoomImg(this)">' : '') + ' <span onclick="delQA('+q.id+')" style="cursor:pointer;color:#e53935;font-size:.8rem;float:right">🗑️</span></div>';
       if (q.answered) {
-        html += '<div class="qa-answer"><div class="qa-answer-label">Ray 的解答</div>' + esc(q.answer) + (q.answer_image ? '<br><img src="' + q.answer_image + '" style="max-width:100%;max-height:300px;border-radius:6px;margin-top:8px;cursor:pointer" onclick="zoomImg(this)">' : '') + '</div>';
+        html += '<div class="qa-answer"><div class="qa-answer-label">Ray 的解答</div>' + esc(q.answer) + (q.answer_image ? '<br><img src="' + q.answer_image + '" style="max-width:100%;max-height:300px;border-radius:6px;margin-top:8px;cursor:pointer" onclick="zoomImg(this)">' : '') + ' <span onclick="delAnswer('+q.id+')" style="cursor:pointer;color:#e53935;font-size:.8rem;float:right" title="删除解答">🗑️</span></div>';
+        // 追问与解答
+        var followUps = []; try { followUps = JSON.parse(q.follow_ups || '[]'); } catch(e) {}
+        followUps.forEach(function(fu, idx) {
+          html += '<div class="qa-follow-item">';
+          html += '<div class="qa-follow-question"><span style="font-size:.8rem;color:var(--text-meta,#999)">追问 #' + (idx+1) + '</span><br>' + esc(fu.question) + (fu.question_image ? '<br><img src="' + fu.question_image + '" style="max-width:100%;max-height:200px;border-radius:6px;margin-top:6px;cursor:pointer" onclick="zoomImg(this)">' : '') + ' <span onclick="delFollowUp('+q.id+','+idx+')" style="cursor:pointer;color:#e53935;font-size:.8rem;float:right" title="删除追问">🗑️</span></div>';
+          if (fu.answered) {
+            html += '<div class="qa-answer" style="margin-left:0;border-left:2px solid var(--theme-color,#425aef)"><div class="qa-answer-label">Ray 的解答</div>' + esc(fu.answer) + (fu.answer_image ? '<br><img src="' + fu.answer_image + '" style="max-width:100%;max-height:200px;border-radius:6px;margin-top:6px;cursor:pointer" onclick="zoomImg(this)">' : '') + ' <span onclick="delFollowUpAnswer('+q.id+','+idx+')" style="cursor:pointer;color:#e53935;font-size:.8rem;float:right" title="删除解答">🗑️</span></div>';
+          } else {
+            html += '<button onclick="showFUAnswer(' + q.id + ',' + idx + ')" style="padding:4px 10px;border:1px solid var(--border-color,#ddd);border-radius:4px;cursor:pointer;font-size:.78rem;margin-top:4px">🔑 继续解答</button>';
+            html += '<div class="qa-answer-form" style="display:none" id="qa-fuaf-' + q.id + '-' + idx + '">';
+            html += '<textarea id="qa-fuat-' + q.id + '-' + idx + '" placeholder="输入解答..." rows="2" style="width:100%;padding:8px;border:1px solid var(--border-color,#ddd);border-radius:6px;outline:none;font-family:inherit;font-size:.85rem;box-sizing:border-box"></textarea>';
+            html += '<button onclick="answerFollowUp(' + q.id + ',' + idx + ')" style="padding:6px 16px;background:var(--theme-color,#425aef);color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:.82rem;margin-top:4px">提交解答</button>';
+            html += '</div>';
+          }
+          html += '</div>';
+        });
+        // 继续追问框（最后一个追问已解答或没有追问时显示）
+        var lastFU = followUps.length > 0 ? followUps[followUps.length - 1] : null;
+        if (!lastFU || lastFU.answered) {
+          html += '<div class="qa-follow-form">';
+          html += '<textarea id="qa-fuq-' + q.id + '" placeholder="继续追问..." rows="2"></textarea>';
+          html += '<div style="margin:4px 0"><button onclick="pickFUImage(' + q.id + ')" style="padding:4px 12px;border:1px solid var(--border-color,#ddd);border-radius:4px;cursor:pointer;font-size:.8rem;background:var(--card-bg,#fff);color:var(--text-color,#333)">📷 添加图片</button><span id="qa-fuin-' + q.id + '" style="font-size:.75rem;color:var(--text-meta,#999);margin-left:6px"></span></div>';
+          html += '<button onclick="submitFollowUp(' + q.id + ')" style="padding:6px 16px;background:var(--theme-color,#425aef);color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:.85rem">提交追问</button>';
+          html += '</div>';
+        }
       } else {
         // 管理员回复框
         html += '<div class="qa-answer-form" style="display:none" id="qa-af-'+q.id+'">';
@@ -292,6 +323,27 @@ function delQA(id) {
     .then(function(r){return r.json()}).then(function(d){ if(d.success) loadQA(); else { alert('密码错误'); qaPwd=''; } });
 }
 
+function delAnswer(id) {
+  if (!qaPwd) { var p = prompt('管理密码：'); if (!p) return; qaPwd = p; }
+  if (!confirm('确定删除该解答？')) return;
+  fetch(API + '/api/qa/delete-answer', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({id:id, admin:qaPwd})})
+    .then(function(r){return r.json()}).then(function(d){ if(d.success) loadQA(); else { alert('密码错误'); qaPwd=''; } });
+}
+
+function delFollowUp(id, idx) {
+  if (!qaPwd) { var p = prompt('管理密码：'); if (!p) return; qaPwd = p; }
+  if (!confirm('确定删除该追问？')) return;
+  fetch(API + '/api/qa/delete-follow-up', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({id:id, followUpIndex:idx, admin:qaPwd})})
+    .then(function(r){return r.json()}).then(function(d){ if(d.success) loadQA(); else { alert('密码错误'); qaPwd=''; } });
+}
+
+function delFollowUpAnswer(id, idx) {
+  if (!qaPwd) { var p = prompt('管理密码：'); if (!p) return; qaPwd = p; }
+  if (!confirm('确定删除该解答？')) return;
+  fetch(API + '/api/qa/delete-follow-up-answer', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({id:id, followUpIndex:idx, admin:qaPwd})})
+    .then(function(r){return r.json()}).then(function(d){ if(d.success) loadQA(); else { alert('密码错误'); qaPwd=''; } });
+}
+
 function answerQA(id) {
   var answer = document.getElementById('qa-at-'+id).value.trim();
   if (!answer) { alert('请输入解答'); return; }
@@ -320,4 +372,67 @@ function zoomImg(el) {
 }
 
 function esc(s) { return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+// 追问图片
+var qaFUImages = {};
+
+function pickFUImage(id) {
+  var inp = document.createElement('input'); inp.type='file'; inp.accept='image/jpeg,image/png,image/webp,image/gif';
+  inp.onchange = function(){
+    var f = inp.files[0]; if (!f || f.size > 20*1024*1024) { alert('图片需小于20MB'); return; }
+    var r = new FileReader();
+    r.onload = function(e){
+      var img = new Image();
+      img.onload = function(){
+        var c = document.createElement('canvas'); var maxW = 1200; var w = img.width, h = img.height;
+        if (w > maxW) { h = h * maxW / w; w = maxW; }
+        c.width = w; c.height = h; var ctx = c.getContext('2d'); ctx.drawImage(img, 0, 0, w, h);
+        var data = c.toDataURL('image/jpeg', 0.7);
+        qaFUImages[id] = data;
+        document.getElementById('qa-fuin-'+id).textContent = '✅ 已添加 (' + Math.round(data.length/1024) + 'KB)';
+      };
+      img.src = e.target.result;
+    };
+    r.readAsDataURL(f);
+  };
+  inp.click();
+}
+
+function submitFollowUp(id) {
+  var nameEl = document.getElementById('qa-name');
+  var name = nameEl ? nameEl.value.trim() : '';
+  if (!name) { alert('请先在「提交问题」区域填写姓名'); return; }
+  var question = document.getElementById('qa-fuq-'+id).value.trim();
+  if (!question) { alert('请输入追问内容'); return; }
+  var img = qaFUImages[id] || '';
+  var btn = event.target; btn.disabled=true; btn.textContent='⏳ 提交中...';
+  fetch(API + '/api/qa/follow-up', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({id:id, name:name, question:question, question_image:img})})
+    .then(function(r){return r.json()}).then(function(d){
+      if (d.success) { document.getElementById('qa-fuq-'+id).value=''; qaFUImages[id]=''; document.getElementById('qa-fuin-'+id).textContent=''; loadQA(); }
+      else alert(d.error||'提交失败');
+    }).catch(function(){alert('网络错误')})
+    .finally(function(){btn.disabled=false;btn.textContent='提交追问';});
+}
+
+function showFUAnswer(id, idx) {
+  if (!qaPwd) {
+    var p = prompt('管理密码：');
+    if (!p) return;
+    qaPwd = p;
+  }
+  document.getElementById('qa-fuaf-'+id+'-'+idx).style.display = 'block';
+}
+
+function answerFollowUp(id, idx) {
+  if (!qaPwd) { var p = prompt('管理密码：'); if (!p) return; qaPwd = p; }
+  var answer = document.getElementById('qa-fuat-'+id+'-'+idx).value.trim();
+  if (!answer) { alert('请输入解答'); return; }
+  var btn = event.target; btn.disabled=true; btn.textContent='⏳ 提交中...';
+  fetch(API + '/api/qa/follow-up-answer', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({id:id, followUpIndex:idx, answer:answer, admin:qaPwd})})
+    .then(function(r){return r.json()}).then(function(d){
+      if (d.success) loadQA();
+      else { alert('密码错误'); qaPwd = ''; }
+    }).catch(function(){alert('网络错误')})
+    .finally(function(){btn.disabled=false;btn.textContent='提交解答';});
+}
 </script>
