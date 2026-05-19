@@ -11,8 +11,7 @@ hexo.extend.helper.register('total_words', function() {
 
 // 渲染完成后，在HTML中插入字数统计
 hexo.extend.filter.register('after_render:html', function(html, data) {
-  if (!html || html.includes('字数')) return html;
-  if (!html.includes('class="site-data"')) return html;
+  if (!html || !html.includes('class="site-data"')) return html;
   // 计算字数
   var total = 0;
   var posts = hexo.model('Post').toArray();
@@ -21,6 +20,7 @@ hexo.extend.filter.register('after_render:html', function(html, data) {
     total += text.length;
   }
   var insertHtml = '<a href="javascript:void(0)"><div class="headline">字数</div><div class="length-num">' + total + '</div></a>';
-  html = html.replace(/(<div class="headline">文章<\/div><div class="length-num">\d+<\/div><\/a>)(<a)/, '$1' + insertHtml + '$2');
+  // 替换所有匹配项（桌面和移动端各有一个 site-data）
+  html = html.replace(/(<div class="headline">文章<\/div><div class="length-num">\d+<\/div><\/a>)(<a)/g, '$1' + insertHtml + '$2');
   return html;
 });
