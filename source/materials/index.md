@@ -372,8 +372,14 @@ function zoomImg(el) {
   ov.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.85);z-index:9999;display:flex;align-items:center;justify-content:center;cursor:zoom-out';
   var img = document.createElement('img');
   img.src = el.src;
-  img.style.cssText = 'max-width:92%;max-height:92%;border-radius:8px;box-shadow:0 4px 30px rgba(0,0,0,.4)';
+  img.style.cssText = 'max-width:92%;max-height:92%;border-radius:8px;box-shadow:0 4px 30px rgba(0,0,0,.4);transition:transform .3s';
+  var rot = 0;
+  var btn = document.createElement('button');
+  btn.textContent = '🔄 旋转';
+  btn.style.cssText = 'position:fixed;bottom:30px;left:50%;transform:translateX(-50%);padding:8px 20px;background:rgba(255,255,255,.2);color:#fff;border:1px solid rgba(255,255,255,.4);border-radius:8px;cursor:pointer;font-size:.9rem;z-index:10000';
+  btn.onclick = function(e) { e.stopPropagation(); rot = (rot + 90) % 360; img.style.transform = 'rotate(' + rot + 'deg)'; };
   ov.appendChild(img);
+  ov.appendChild(btn);
   ov.onclick = function(){ document.body.removeChild(ov); };
   document.body.appendChild(ov);
 }
