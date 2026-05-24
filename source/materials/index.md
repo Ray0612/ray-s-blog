@@ -43,9 +43,11 @@ comments: false
 .qa-answered{font-size:.75rem;color:#4caf50;font-weight:600}
 [data-theme="dark"] .qa-form input,[data-theme="dark"] .qa-form textarea,[data-theme="dark"] .qa-follow-form textarea,[data-theme="dark"] .qa-answer-form textarea{color:var(--text-color,#e0e0e0);background:var(--card-bg,#1e1e2e);border-color:var(--border-color,#333)}
 [data-theme="dark"] button[onclick*="Image"]{color:var(--text-color,#e0e0e0)!important;border-color:var(--border-color,#555)!important}
+[data-theme="dark"] .qa-name{color:var(--text-color,#e0e0e0)}
 [data-theme="dark"] .qa-question{background:var(--second-bg,#1a1a2a);color:var(--text-color,#e0e0e0)}
 [data-theme="dark"] .qa-follow-item{background:var(--second-bg,#1a1a2a)}
 [data-theme="dark"] .qa-follow-question{color:var(--text-color,#e0e0e0)}
+[data-theme="dark"] .qa-list button[onclick*="showAnswer"], [data-theme="dark"] .qa-list button[onclick*="showFUAnswer"], [data-theme="dark"] .qa-list button[onclick*="delQA"], [data-theme="dark"] .qa-list button[onclick*="delAnswer"], [data-theme="dark"] .qa-list button[onclick*="delFollowUpAnswer"]{color:var(--text-color,#e0e0e0)!important}
 </style>
 
 <div class="tab-bar">
