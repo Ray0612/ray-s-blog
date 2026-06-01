@@ -28,6 +28,11 @@ menu:
    我的书架: /bookshelf/ || fas fa-bookmark
    物理教学: /materials/ || fas fa-flask
    教程分享: /categories/教程分享/ || fas fa-graduation-cap
+   AI||fas fa-robot:
+     AI聊天网关: /ai/chat/ || fas fa-comment-dots
+     数字分身: /me/ || fas fa-user
+     每日日报: /daily/ || fas fa-newspaper
+     AI圆桌会议: /council/ || fas fa-users
    小工具集: /tools/ || fas fa-tools
 
 # --------------------------------------
