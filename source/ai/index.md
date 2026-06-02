@@ -21,9 +21,9 @@ comments: false
     <h3>🧠 Ray 数字分身</h3>
     <p>基于博客文章和个人设定打造的 AI 分身，可以和"我"对话。（开发中）</p>
   </a>
-  <a class="ai-card" href="javascript:void(0)">
+  <a class="ai-card" href="https://daily.ray2.asia">
     <h3>📰 每日日报</h3>
-    <p>每日自动推送国内新闻、国际新闻、AI 圈、科技圈、GitHub 热榜。（开发中）</p>
+    <p>每天 6:00 自动采集 Hacker News、GitHub 趋势、arXiv AI 论文，AI 汇总生成简讯并发送邮件。</p>
   </a>
   <a class="ai-card" href="javascript:void(0)">
     <h3>👥 AI 圆桌会议</h3>
