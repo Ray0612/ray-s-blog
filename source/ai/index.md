@@ -15,7 +15,7 @@ comments: false
 <div class="ai-grid">
   <a class="ai-card" href="/ai/chat/">
     <h3>💬 AI聊天网关</h3>
-    <p>统一接入多个 AI 模型，支持 GPT、DeepSeek、Gemini。可在国内直接使用。</p>
+    <p>统一接入多个 AI 模型，支持 GPT、DeepSeek、Grok。可在国内直接使用。</p>
   </a>
   <a class="ai-card" href="javascript:void(0)">
     <h3>🧠 Ray 数字分身</h3>
