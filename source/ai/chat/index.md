@@ -23,6 +23,7 @@ comments: false
   <div style="display:flex;gap:8px;align-items:center;margin-bottom:12px">
     <select id="model-select">
       <option value="gpt">GPT-4o</option>
+      <option value="grok">Grok 3（xAI）</option>
       <option value="deepseek">DeepSeek V4 Pro（NVIDIA 免费）</option>
       <option value="gemini">Gemini 2.5 Pro</option>
     </select>
@@ -38,7 +39,7 @@ comments: false
 
 <script>
 var API = 'https://ai-gateway.ray2.asia/v1/chat/completions';
-var modelMap = {gpt:'gpt-4o', deepseek:'deepseek-ai/deepseek-v4-pro', gemini:'gemini-2.5-pro'};
+var modelMap = {gpt:'gpt-4o', grok:'grok-3', deepseek:'deepseek-ai/deepseek-v4-pro', gemini:'gemini-2.5-pro'};
 var history = [];
 
 function addMsg(role, text) {
