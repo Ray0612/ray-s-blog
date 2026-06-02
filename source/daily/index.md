@@ -17,6 +17,15 @@ comments: false
 .daily-content strong{color:var(--text-color,#111827)}
 .daily-content br{content:'';display:block;margin:2px 0}
 .daily-footer{text-align:center;padding:12px;color:#9ca3af;font-size:12px;margin-top:16px}
+
+/* 暗色模式 - 页面 UI */
+[data-theme="dark"] .daily-content{background:var(--card-bg,#1f2937);border-color:#374151;color:#e5e7eb}
+[data-theme="dark"] .daily-content h2{color:#f3f4f6;border-color:#374151}
+[data-theme="dark"] .daily-content h3{color:#f3f4f6}
+[data-theme="dark"] .daily-content strong{color:#f3f4f6}
+[data-theme="dark"] .daily-list a{border-color:#374151;color:#d1d5db}
+[data-theme="dark"] .daily-list a:hover,.daily-list a.active{border-color:var(--theme-color,#425aef);color:var(--theme-color,#425aef)}
+[data-theme="dark"] .daily-footer{color:#6b7280}
 </style>
 
 <div id="daily-app">
