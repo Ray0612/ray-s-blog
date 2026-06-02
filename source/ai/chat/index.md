@@ -37,7 +37,8 @@ comments: false
 </div>
 
 <script>
-var API = 'https://ai-gateway.ray2.asia';
+var API = 'https://ai-gateway.ray2.asia/v1/chat/completions';
+var modelMap = {gpt:'gpt-4o', deepseek:'deepseek-ai/deepseek-v4-pro', gemini:'gemini-2.5-pro'};
 var history = [];
 
 function addMsg(role, text) {
@@ -60,32 +61,17 @@ function sendMsg() {
   addMsg('user', text);
   history.push({role:'user', content:text});
 
-  var model = document.getElementById('model-select').value;
+  var modelKey = document.getElementById('model-select').value;
+  var modelName = modelMap[modelKey] || 'gpt-4o';
 
-  // 如果是 GPT，走现有 Worker；否则走 NVIDIA/Gemini
-  var url = model === 'gpt' ? 'https://ray2.asia/v1/chat/completions'
-            : model === 'deepseek' ? API + '/v1/chat/completions'
-            : API + '/v1/chat/completions';
-
-  var body = {
-    model: model === 'gpt' ? 'gpt-4o' : model === 'deepseek' ? 'deepseek-ai/deepseek-v4-pro' : 'gemini-2.5-pro',
-    messages: history.slice(-10),
-    stream: false,
-    max_tokens: 2048
-  };
-
-  // 如果是 GPT，需要带 OpenAI API key
-  var headers = {'Content-Type': 'application/json'};
-  if (model === 'gpt') {
-    // 现有 Worker 自动处理 auth
-  } else {
-    headers['X-Model'] = model;
-  }
-
-  fetch(url, {
+  fetch(API, {
     method: 'POST',
-    headers: headers,
-    body: JSON.stringify(body)
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({
+      model: modelName,
+      messages: history.slice(-20),
+      max_tokens: 4096
+    })
   }).then(function(r) {
     if (!r.ok) throw new Error('HTTP ' + r.status);
     return r.json();
