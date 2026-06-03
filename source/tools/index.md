@@ -24,6 +24,12 @@ comments: false
   <div class="tool-desc">四级/六级词汇记忆计划生成，三种筛词模式，导出PDF</div>
 </a>
 
+<a href="/tools/download-relay/" class="tool-card">
+  <div class="tool-icon">⚡</div>
+  <div class="tool-name">GitHub高速下载</div>
+  <div class="tool-desc">通过 R2 中转加速 GitHub 文件下载，突破国内限速</div>
+</a>
+
 </div>
 
 <style>
