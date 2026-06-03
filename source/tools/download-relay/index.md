@@ -57,14 +57,13 @@ comments: false
       <label style="font-size:13px;display:flex;align-items:center;gap:6px;margin-bottom:8px;color:var(--text-color,#374151)">
         <input type="checkbox" id="adminMode"> 管理员模式（任意链接 + 不限大小）
       </label>
-      <button class="dr-btn" onclick="adminUnlock()" style="font-size:12px;padding:6px 16px">解锁额外流量</button>
       <button class="dr-btn" onclick="adminStatus()" style="font-size:12px;padding:6px 16px">查看配额</button>
       <div class="dr-status" id="adminStatus"></div>
     </div>
   </div>
 
   <div class="dr-footer">
-    由 VPS → R2 中转加速 · 每月 5GB 总配额
+    Worker 直下 + R2 中转 · 共享 5GB/月 · 管理员额外 3GB
   </div>
 </div>
 
@@ -78,12 +77,12 @@ var pollTimer = null;
   fetch(API + '/api/quota').then(function(r) { return r.json(); }).then(function(d) {
     if (!d.quota) return;
     var q = d.quota;
-    var pct = Math.min(100, (q.used / q.total * 100));
+    var pct = Math.min(100, (q.poolUsed / q.poolTotal * 100));
     document.getElementById('quotaBarInner').style.width = pct + '%';
     if (pct > 85) document.getElementById('quotaBarInner').style.background = '#ef4444';
     else if (pct > 60) document.getElementById('quotaBarInner').style.background = '#f59e0b';
-    document.getElementById('quotaText').textContent = '已用 ' + formatBytes(q.used) + ' / ' + formatBytes(q.total) + '（' + pct.toFixed(1) + '%）';
-    if (q.bonusUsed) document.getElementById('quotaText').textContent += ' · 已解锁额外流量';
+    document.getElementById('quotaText').innerHTML = '共享池已用 ' + formatBytes(q.poolUsed) + ' / ' + formatBytes(q.poolTotal)
+      + '（' + pct.toFixed(1) + '%）<br>管理员已用 ' + formatBytes(q.adminUsed) + ' / ' + formatBytes(q.adminTotal);
   }).catch(function() {
     document.getElementById('quotaText').textContent = '配额信息暂时不可用';
   });
@@ -179,28 +178,6 @@ function toggleAdmin() {
   p.style.display = p.style.display === 'block' ? 'none' : 'block';
 }
 
-function adminUnlock() {
-  var pwd = document.getElementById('adminPwd').value;
-  fetch(API + '/api/admin', {
-    method: 'POST',
-    headers: {'Content-Type': 'application/json'},
-    body: JSON.stringify({password: pwd, action: 'unlock'})
-  }).then(function(r) { return r.json(); }).then(function(d) {
-    var s = document.getElementById('adminStatus');
-    if (d.error) {
-      s.className = 'dr-status err'; s.style.display = 'block';
-      s.textContent = '❌ ' + d.error;
-    } else {
-      s.className = 'dr-status ok'; s.style.display = 'block';
-      s.textContent = '✅ ' + d.message;
-    }
-  }).catch(function(e) {
-    var s = document.getElementById('adminStatus');
-    s.className = 'dr-status err'; s.style.display = 'block';
-    s.textContent = '❌ ' + e.message;
-  });
-}
-
 function adminStatus() {
   var pwd = document.getElementById('adminPwd').value;
   fetch(API + '/api/admin', {
@@ -215,7 +192,8 @@ function adminStatus() {
     } else if (d.quota) {
       var q = d.quota;
       s.className = 'dr-status info'; s.style.display = 'block';
-      s.innerHTML = '本月已用: ' + formatBytes(q.used) + ' / ' + formatBytes(q.total) + '<br>剩余: ' + formatBytes(q.remaining);
+      s.innerHTML = '共享池: ' + formatBytes(q.poolUsed) + ' / ' + formatBytes(q.poolTotal)
+        + '<br>管理员池: ' + formatBytes(q.adminUsed) + ' / ' + formatBytes(q.adminTotal);
     }
   });
 }
