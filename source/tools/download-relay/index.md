@@ -41,6 +41,15 @@ comments: false
     <div class="dr-info">支持 GitHub 域名 · 单文件 ≤200MB · 全站月流量 5GB</div>
   </div>
 
+  <!-- 配额进度条 -->
+  <div class="dr-card" id="quotaCard">
+    <h2>📊 本月已用流量</h2>
+    <div class="dr-bar" id="quotaBar" style="display:block;height:10px;border-radius:5px;margin-bottom:6px">
+      <div class="dr-bar-inner" id="quotaBarInner" style="height:10px;border-radius:5px"></div>
+    </div>
+    <div class="dr-info" id="quotaText" style="font-size:13px">加载中...</div>
+  </div>
+
   <div class="dr-card" style="text-align:center">
     <button class="dr-admin-btn" onclick="toggleAdmin()">⚙ 管理员</button>
     <div class="dr-admin-panel" id="adminPanel">
@@ -60,6 +69,22 @@ comments: false
 var API = 'https://dl.ray2.asia';
 var POLL_INTERVAL = 2000;
 var pollTimer = null;
+
+// 加载配额信息
+(function loadQuota() {
+  fetch(API + '/api/quota').then(function(r) { return r.json(); }).then(function(d) {
+    if (!d.quota) return;
+    var q = d.quota;
+    var pct = Math.min(100, (q.used / q.total * 100));
+    document.getElementById('quotaBarInner').style.width = pct + '%';
+    if (pct > 85) document.getElementById('quotaBarInner').style.background = '#ef4444';
+    else if (pct > 60) document.getElementById('quotaBarInner').style.background = '#f59e0b';
+    document.getElementById('quotaText').textContent = '已用 ' + formatBytes(q.used) + ' / ' + formatBytes(q.total) + '（' + pct.toFixed(1) + '%）';
+    if (q.bonusUsed) document.getElementById('quotaText').textContent += ' · 已解锁额外流量';
+  }).catch(function() {
+    document.getElementById('quotaText').textContent = '配额信息暂时不可用';
+  });
+})();
 
 function startDownload() {
   var url = document.getElementById('drUrl').value.trim();

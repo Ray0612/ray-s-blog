@@ -39,4 +39,8 @@ comments: false
 .tool-icon{font-size:2.2rem;margin-bottom:10px}
 .tool-name{font-weight:600;color:var(--font-color,#333);font-size:1.05rem}
 .tool-desc{font-size:.82rem;color:var(--card-meta,#999);margin-top:6px;line-height:1.5}
+/* 暗色模式 */
+[data-theme="dark"] .tool-name{color:#e5e7eb}
+[data-theme="dark"] .tool-desc{color:#9ca3af}
+[data-theme="dark"] .tool-card{background:var(--card-bg,#1f2937);border-color:#374151}
 </style>
