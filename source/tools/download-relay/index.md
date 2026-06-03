@@ -54,6 +54,9 @@ comments: false
     <button class="dr-admin-btn" onclick="toggleAdmin()">⚙ 管理员</button>
     <div class="dr-admin-panel" id="adminPanel">
       <input class="dr-input" id="adminPwd" type="password" placeholder="管理员密码" style="margin-bottom:8px">
+      <label style="font-size:13px;display:flex;align-items:center;gap:6px;margin-bottom:8px;color:var(--text-color,#374151)">
+        <input type="checkbox" id="adminMode"> 管理员模式（任意链接 + 不限大小）
+      </label>
       <button class="dr-btn" onclick="adminUnlock()" style="font-size:12px;padding:6px 16px">解锁额外流量</button>
       <button class="dr-btn" onclick="adminStatus()" style="font-size:12px;padding:6px 16px">查看配额</button>
       <div class="dr-status" id="adminStatus"></div>
@@ -100,10 +103,14 @@ function startDownload() {
   status.className = 'dr-status';
   bar.style.display = 'none';
 
+  var submitData = {url: url};
+  if (document.getElementById('adminMode').checked) {
+    submitData.password = document.getElementById('adminPwd').value;
+  }
   fetch(API + '/api/submit', {
     method: 'POST',
     headers: {'Content-Type': 'application/json'},
-    body: JSON.stringify({url: url})
+    body: JSON.stringify(submitData)
   }).then(function(r) { return r.json(); }).then(function(d) {
     if (d.error) {
       showStatus('err', '❌ ' + d.error);
