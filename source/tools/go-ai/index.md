@@ -76,25 +76,15 @@ async function api(method, path, data){
   return r.json();
 }
 
-// 唤醒 TinyGo + 定期保活
-var pingTimer = null;
-function startPing() {
-  if(pingTimer) clearInterval(pingTimer);
-  pingTimer = setInterval(function(){ fetch(API+'/ping') }, 30000);
-}
-
+// 等待 TinyGo 就绪
 async function initGame(side) {
   info('连接中...');
-  var w = await api('GET','/wake');
-  if(!w.ok) { info('启动失败，请刷新重试'); return; }
-  // 等待 TinyGo 就绪
-  for(var i=0;i<20;i++){
+  for(var i=0;i<30;i++){
     var s = await fetch(API+'/state').then(r=>r.json()).catch(()=>{});
-    if(s && s.board) break;
+    if(s && s.board) { newGame(side); info(''); return; }
     await new Promise(r=>setTimeout(r,1000));
   }
-  startPing();
-  newGame(side);
+  info('连接超时，请刷新重试');
 }
 
 cv.onclick = function(e){
