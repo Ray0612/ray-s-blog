@@ -120,8 +120,12 @@ async function countScore(){
 }
 
 function undo(){
-  if(hst.length<2||thk)return; hst.pop(); hst.pop();
-  bd=hst.length?[...hst[hst.length-1]]:[]; cur=HUMAN; draw();
+  if(hst.length<2||thk)return;
+  var movesBefore = hst.length - 2;  // 回退两步（人和AI各一步）
+  hst.pop(); hst.pop();
+  api('POST','/revert',{moves:movesBefore}).then(function(d){
+    if(d.ok){bd=d.board;cur=d.current;draw()}
+  });
   document.getElementById('go-score').textContent = '';
 }
 
