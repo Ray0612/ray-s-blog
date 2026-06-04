@@ -24,6 +24,12 @@ comments: false
   <div class="tool-desc">四级/六级词汇记忆计划生成，三种筛词模式，导出PDF</div>
 </a>
 
+<a href="/tools/go-ai/" class="tool-card">
+  <div class="tool-icon">⚫</div>
+  <div class="tool-name">围棋对弈</div>
+  <div class="tool-desc">TinyGo 对弈 · 业余二段左右水平</div>
+</a>
+
 <a href="/tools/download-relay/" class="tool-card">
   <div class="tool-icon">⚡</div>
   <div class="tool-name">GitHub高速下载</div>
