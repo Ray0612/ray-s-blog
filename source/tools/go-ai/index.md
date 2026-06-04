@@ -76,6 +76,27 @@ async function api(method, path, data){
   return r.json();
 }
 
+// 唤醒 TinyGo + 定期保活
+var pingTimer = null;
+function startPing() {
+  if(pingTimer) clearInterval(pingTimer);
+  pingTimer = setInterval(function(){ fetch(API+'/ping') }, 30000);
+}
+
+async function initGame(side) {
+  info('连接中...');
+  var w = await api('GET','/wake');
+  if(!w.ok) { info('启动失败，请刷新重试'); return; }
+  // 等待 TinyGo 就绪
+  for(var i=0;i<20;i++){
+    var s = await fetch(API+'/state').then(r=>r.json()).catch(()=>{});
+    if(s && s.board) break;
+    await new Promise(r=>setTimeout(r,1000));
+  }
+  startPing();
+  newGame(side);
+}
+
 cv.onclick = function(e){
   var rect=cv.getBoundingClientRect(),mx=e.clientX-rect.left,my=e.clientY-rect.top;
   var c=Math.round((mx-PAD)/C),r=Math.round((my-PAD)/C);
@@ -132,6 +153,6 @@ function undo(){
 function saveSGF(){ window.open('https://go.ray2.asia/sgf'); }
 function info(s){document.getElementById('go-info').textContent=s;}
 
-// 启动
-newGame(1);
+// 启动（先唤醒 TinyGo）
+initGame(1);
 </script>
