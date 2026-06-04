@@ -43,7 +43,7 @@ html, body, .layout, .aside, main, #content-inner{max-width:100%!important;width
 </div>
 
 <script>
-var API = 'http://107.161.82.99:8888';
+var API = 'https://go.ray2.asia';
 var S = 19, CS = 29, C = CS, PAD = 18, HUMAN = 1;
 var bd = [], cur = 1, hst = [], thk = false;
 var cv = document.getElementById('cv'), ctx = cv.getContext('2d');
@@ -129,7 +129,7 @@ function undo(){
   document.getElementById('go-score').textContent = '';
 }
 
-function saveSGF(){ window.open('http://107.161.82.99:8888/sgf'); }
+function saveSGF(){ window.open('https://go.ray2.asia/sgf'); }
 function info(s){document.getElementById('go-info').textContent=s;}
 
 // 启动
