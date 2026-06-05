@@ -34,7 +34,6 @@ menu:
      每日日报: /daily/ || fas fa-newspaper
      AI圆桌会议: /council/ || fas fa-users
    小工具集: /tools/ || fas fa-tools
-	   RAY: https://xui.ray2.asia/cNHTtQgcDESQO7L7MJ/ || fas fa-cog
 
 # --------------------------------------
 # Code Blocks Settings
@@ -283,7 +282,7 @@ footer:
   copyright:
     enable: true
     version: true
-  custom_text:
+  custom_text: <a href="https://xui.ray2.asia/cNHTtQgcDESQO7L7MJ/" target="_blank">RAY</a>
 
 # --------------------------------------
 # Aside Settings
