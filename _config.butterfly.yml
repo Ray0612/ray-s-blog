@@ -19,7 +19,7 @@ nav:
 
 menu:
    Home: / || fas fa-home
-   哲小思||fas fa-book:
+   哲小思||fas fa-book||hide:
      个人叙事: /categories/哲小思/个人叙事/ || fas fa-feather
      读加缪: /categories/哲小思/读加缪/ || fas fa-book-open
      读尼采: /categories/哲小思/读尼采/ || fas fa-book-open
@@ -28,7 +28,7 @@ menu:
    我的书架: /bookshelf/ || fas fa-bookmark
    物理教学: /materials/ || fas fa-flask
    教程分享: /categories/教程分享/ || fas fa-graduation-cap
-   AI||fas fa-robot:
+   AI||fas fa-robot||hide:
      AI聊天网关: /ai/chat/ || fas fa-comment-dots
      数字分身: /me/ || fas fa-user
      每日日报: /daily/ || fas fa-newspaper
@@ -1079,26 +1079,7 @@ inject:
     - <link rel="stylesheet" href="/css/custom.css">
   bottom:
     - <script src="/js/comments.js"></script>
-    - <script>
-      // 手机端菜单：点击一个子菜单时收起其他子菜单
-      document.addEventListener('DOMContentLoaded', function() {
-        // 页面加载时收起所有子菜单
-        document.querySelectorAll('#sidebar-menus .site-page.group').forEach(function(el) {
-          el.classList.add('hide');
-        });
-        // 点击子菜单时收起其他已展开的
-        document.querySelector('#sidebar-menus .menus_items')?.addEventListener('click', function(e) {
-          var target = e.target.closest('.site-page.group');
-          if (!target) return;
-          // 如果当前是收起状态，收起其他所有展开的
-          if (target.classList.contains('hide')) {
-            document.querySelectorAll('#sidebar-menus .site-page.group:not(.hide)').forEach(function(el) {
-              el.classList.add('hide');
-            });
-          }
-        });
-      });
-      </script>
+    - <script>document.querySelector('#sidebar-menus .menus_items')?.addEventListener('click',function(e){var t=e.target.closest('.site-page.group');if(!t||t.classList.contains('hide')){document.querySelectorAll('#sidebar-menus .site-page.group:not(.hide)').forEach(function(el){el.classList.add('hide')})}})</script>
 
 # CDN Settings
 # Don't modify the following settings unless you know how they work
