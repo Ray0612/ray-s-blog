@@ -20,6 +20,7 @@ aside: false
   }
   #chat-header h1 { font-size: 18px; color: #fff; font-weight: 600; }
   #chat-header p { font-size: 13px; color: #888; margin-top: 4px; }
+  #chat-header .corpus-info { font-size: 12px; color: #555; margin-top: 2px; }
 
   #messages {
     flex: 1; overflow-y: auto; padding: 16px;
@@ -86,6 +87,7 @@ aside: false
   <div id="chat-header">
     <h1>Ray</h1>
     <p>数字分身 · 以他的方式思考</p>
+    <div class="corpus-info" id="corpus-info">结合文章数：加载中…</div>
   </div>
   <div id="messages"></div>
   <div id="input-area">
@@ -113,6 +115,18 @@ input.addEventListener('input', () => {
 // Enter to send (Shift+Enter for newline)
 input.addEventListener('keydown', e => {
   if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); }
+});
+
+// Load corpus info
+fetch(API + '/').then(r => r.json()).then(data => {
+  const info = document.getElementById('corpus-info');
+  if (data.corpus) {
+    info.textContent = '结合文章数：' + data.corpus.articles + '篇 · 概念数：' + data.corpus.concepts;
+  } else {
+    info.textContent = '结合文章数：31篇';
+  }
+}).catch(() => {
+  document.getElementById('corpus-info').textContent = '结合文章数：31篇';
 });
 
 async function send() {
