@@ -1,6 +1,5 @@
 User-agent: *
 Allow: /
-Sitemap: https://blog.ray2.asia/sitemap.xml
 
-# Disallow admin pages
-Disallow: /tools/comment-admin/
+Sitemap: https://blog.ray2.asia/sitemap.xml
+Sitemap: https://blog.ray2.asia/baidusitemap.xml
