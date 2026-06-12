@@ -5,8 +5,17 @@
 # Site
 title: Ray 的博客
 subtitle: '记录与思考'
-description: '哲学、技术、生活'
+description: 'Ray 的个人博客 — 哲学随笔、技术分享、生活记录。关于荒诞主义、存在主义、个人开发与逆向工程。'
 keywords:
+  - 哲学
+  - 博客
+  - 荒诞主义
+  - 存在主义
+  - 技术
+  - 开发
+  - 逆向工程
+  - 个人博客
+  - 思考
 author: Ray
 language: zh-CN
 timezone: 'Asia/Shanghai'
@@ -102,3 +111,10 @@ theme: butterfly
 ## Docs: https://hexo.io/docs/one-command-deployment
 deploy:
   type: ''
+
+# SEO
+sitemap:
+  path: sitemap.xml
+  rel: true
+  tags: true
+  categories: true
