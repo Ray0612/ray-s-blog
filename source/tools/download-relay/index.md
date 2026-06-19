@@ -38,7 +38,7 @@ comments: false
     <button class="dr-btn" id="drBtn" onclick="startDownload()">开始加速下载</button>
     <div class="dr-bar" id="drBar"><div class="dr-bar-inner" id="drBarInner"></div></div>
     <div class="dr-status" id="drStatus"></div>
-    <div class="dr-info">支持 GitHub 域名 · 单文件 ≤200MB · 全站月流量 5GB</div>
+    <div class="dr-info">支持 GitHub 域名 · 单文件 ≤400MB · 全站月流量 5GB</div>
   </div>
 
   <!-- 配额进度条 -->
