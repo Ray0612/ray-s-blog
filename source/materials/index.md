@@ -198,16 +198,16 @@ function loadQA() {
       html += '<div class="qa-item">';
       html += '<div class="qa-name">' + esc(q.student_name) + (q.answered ? ' <span class="qa-answered">✅ 已解答</span>' : '') + '</div>';
       html += '<div class="qa-time">' + new Date(q.created_at).toLocaleString() + '</div>';
-      html += '<div class="qa-question">' + esc(q.question) + (q.question_image ? '<br><img src="' + q.question_image + '" style="max-width:100%;max-height:300px;border-radius:6px;margin-top:8px;cursor:pointer" onclick="zoomImg(this)">' : '') + ' <span onclick="delQA('+q.id+')" style="cursor:pointer;color:#e53935;font-size:.8rem;float:right">🗑️</span></div>';
+      html += '<div class="qa-question">' + esc(q.question) + (q.question_image ? '<br><span class="qa-img-lazy" data-src="' + q.question_image + '" style="display:inline-block;padding:6px 12px;border:1px dashed var(--border-color,#ddd);border-radius:6px;font-size:.78rem;color:var(--text-meta,#999);cursor:pointer;margin-top:6px" onclick="loadLazyImg(this)">📷 查看图片</span>' : '') + ' <span onclick="delQA('+q.id+')" style="cursor:pointer;color:#e53935;font-size:.8rem;float:right">🗑️</span></div>';
       if (q.answered) {
-        html += '<div class="qa-answer"><div class="qa-answer-label">Ray 的解答</div>' + esc(q.answer) + (q.answer_image ? '<br><img src="' + q.answer_image + '" style="max-width:100%;max-height:300px;border-radius:6px;margin-top:8px;cursor:pointer" onclick="zoomImg(this)">' : '') + ' <span onclick="delAnswer('+q.id+')" style="cursor:pointer;color:#e53935;font-size:.8rem;float:right" title="删除解答">🗑️</span></div>';
+        html += '<div class="qa-answer"><div class="qa-answer-label">Ray 的解答</div>' + esc(q.answer) + (q.answer_image ? '<br><span class="qa-img-lazy" data-src="' + q.answer_image + '" style="display:inline-block;padding:4px 10px;border:1px dashed var(--border-color,#ddd);border-radius:4px;font-size:.78rem;color:var(--text-meta,#999);cursor:pointer;margin-top:4px" onclick="loadLazyImg(this)">📷 查看图片</span>' : '') + ' <span onclick="delAnswer('+q.id+')" style="cursor:pointer;color:#e53935;font-size:.8rem;float:right" title="删除解答">🗑️</span></div>';
         // 追问与解答
         var followUps = []; try { followUps = JSON.parse(q.follow_ups || '[]'); } catch(e) {}
         followUps.forEach(function(fu, idx) {
           html += '<div class="qa-follow-item">';
-          html += '<div class="qa-follow-question"><span style="font-size:.8rem;color:var(--text-meta,#999)">追问 #' + (idx+1) + '</span><br>' + esc(fu.question) + (fu.question_image ? '<br><img src="' + fu.question_image + '" style="max-width:100%;max-height:200px;border-radius:6px;margin-top:6px;cursor:pointer" onclick="zoomImg(this)">' : '') + ' <span onclick="delFollowUp('+q.id+','+idx+')" style="cursor:pointer;color:#e53935;font-size:.8rem;float:right" title="删除追问">🗑️</span></div>';
+          html += '<div class="qa-follow-question"><span style="font-size:.8rem;color:var(--text-meta,#999)">追问 #' + (idx+1) + '</span><br>' + esc(fu.question) + (fu.question_image ? '<br><span class="qa-img-lazy" data-src="' + fu.question_image + '" style="display:inline-block;padding:4px 10px;border:1px dashed var(--border-color,#ddd);border-radius:4px;font-size:.78rem;color:var(--text-meta,#999);cursor:pointer;margin-top:4px" onclick="loadLazyImg(this)">📷 查看图片</span>' : '') + ' <span onclick="delFollowUp('+q.id+','+idx+')" style="cursor:pointer;color:#e53935;font-size:.8rem;float:right" title="删除追问">🗑️</span></div>';
           if (fu.answered) {
-            html += '<div class="qa-answer" style="margin-left:0;border-left:2px solid var(--theme-color,#425aef)"><div class="qa-answer-label">Ray 的解答</div>' + esc(fu.answer) + (fu.answer_image ? '<br><img src="' + fu.answer_image + '" style="max-width:100%;max-height:200px;border-radius:6px;margin-top:6px;cursor:pointer" onclick="zoomImg(this)">' : '') + ' <span onclick="delFollowUpAnswer('+q.id+','+idx+')" style="cursor:pointer;color:#e53935;font-size:.8rem;float:right" title="删除解答">🗑️</span></div>';
+            html += '<div class="qa-answer" style="margin-left:0;border-left:2px solid var(--theme-color,#425aef)"><div class="qa-answer-label">Ray 的解答</div>' + esc(fu.answer) + (fu.answer_image ? '<br><span class="qa-img-lazy" data-src="' + fu.answer_image + '" style="display:inline-block;padding:4px 10px;border:1px dashed var(--border-color,#ddd);border-radius:4px;font-size:.78rem;color:var(--text-meta,#999);cursor:pointer;margin-top:4px" onclick="loadLazyImg(this)">📷 查看图片</span>' : '') + ' <span onclick="delFollowUpAnswer('+q.id+','+idx+')" style="cursor:pointer;color:#e53935;font-size:.8rem;float:right" title="删除解答">🗑️</span></div>';
           } else {
             html += '<button onclick="showFUAnswer(' + q.id + ',' + idx + ')" style="padding:4px 10px;border:1px solid var(--border-color,#ddd);border-radius:4px;cursor:pointer;font-size:.78rem;margin-top:4px">🔑 继续解答</button>';
             html += '<div class="qa-answer-form" style="display:none" id="qa-fuaf-' + q.id + '-' + idx + '">';
@@ -365,6 +365,13 @@ function answerQA(id) {
       else { alert('密码错误，请重新输入'); qaPwd = ''; }
     }).catch(function(e){if(e.name!='AbortError')alert('网络错误');})
     .finally(function(){btn.disabled=false;btn.textContent='提交解答';});
+}
+
+// Lazy-load embedded images
+function loadLazyImg(el) {
+  var src = el.getAttribute('data-src');
+  if (!src) return;
+  el.outerHTML = '<img src="' + src + '" style="max-width:100%;max-height:300px;border-radius:6px;margin-top:6px;cursor:pointer" onclick="zoomImg(this)">';
 }
 
 function zoomImg(el) {
