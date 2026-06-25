@@ -134,9 +134,11 @@ comments: false
       <b>AI 聊天</b>
       <select id="mSel">
         <option value="gpt">GPT-5.4-mini</option>
-        <option value="qwen">Qwen 3.5-122B</option>
         <option value="deepseek">DeepSeek V4 Pro</option>
-        <option value="grok">Grok 3</option>
+        <option value="grok">Grok 4.1 Fast</option>
+        <option value="minimax">MiniMax M4</option>
+        <option value="glm">GLM 5.1</option>
+        <option value="qwen">Qwen 3.7</option>
       </select>
     </div>
     <button class="chat-new" onclick="newChat()">新对话</button>
