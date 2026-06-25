@@ -147,7 +147,7 @@ comments: false
   <div class="chat-ft">
     <div class="chat-iw">
       <textarea class="chat-i" id="chatIn" rows="1" placeholder="输入消息..." onkeydown="onKey(event)" oninput="resizeIn(this)"></textarea>
-      <button class="chat-s" id="sendBtn" onclick="sendMsg()" disabled>
+      <button class="chat-s" id="sendBtn" onclick="sendMsg(event)" type="button" disabled>
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M22 2 11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>
       </button>
     </div>
@@ -227,7 +227,8 @@ function hideTyping() {
   if (el) el.remove();
 }
 
-function sendMsg() {
+function sendMsg(e) {
+  if (e) e.preventDefault();
   var text = chatIn.value.trim();
   if (!text || busy) return;
   chatIn.value = '';
