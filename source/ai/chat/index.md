@@ -155,8 +155,8 @@ comments: false
 
 <script>
 var API = 'https://ai-gateway.ray2.asia/v1/chat/completions';
-var MM = {gpt:'gpt-5.4-mini', qwen:'qwen/qwen3.5-122b-a10b', deepseek:'deepseek-v4-pro', grok:'grok-4-1-fast-reasoning'};
-var ML = {gpt:'GPT-5.4-mini', qwen:'Qwen 3.5-122B', deepseek:'DeepSeek V4 Pro', grok:'Grok 3'};
+var MM = {gpt:'gpt-5.4-mini', deepseek:'deepseek-v4-pro', grok:'grok-4-1-fast-reasoning', minimax:'minimax-m4', glm:'glm-5.2', qwen:'qwen-3.7'};
+var ML = {gpt:'GPT-5.4-mini', deepseek:'DeepSeek V4 Pro', grok:'Grok 4.1 Fast', minimax:'MiniMax M4', glm:'GLM 5.2', qwen:'Qwen 3.7'};
 var messages = [];
 var busy = false;
 
