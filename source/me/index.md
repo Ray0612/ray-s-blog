@@ -99,7 +99,7 @@ aside: false
 </div>
 
 <script>
-const API = 'https://me.ray2.asia';
+const API = '/me';
 const messagesEl = document.getElementById('messages');
 const input = document.getElementById('input');
 const sendBtn = document.getElementById('send');
@@ -117,11 +117,7 @@ input.addEventListener('keydown', e => {
   if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); }
 });
 
-// Corpus info
-fetch(API + '/chat', {method:'POST', headers:{'Content-Type':'application/json'}, body:'{}'}).then(r=>r.json()).then(d=>{
-  if (d.corpus) document.getElementById('corpus-info').textContent = '结合文章数：'+d.corpus.articles+'篇 · 概念数：'+d.corpus.concepts;
-}).catch(()=>{});
-document.getElementById('corpus-info').textContent = '结合文章数：31篇';
+document.getElementById('corpus-info').textContent = '结合文章数：31篇 · 概念数：208';
 
 async function send() {
   const msg = input.value.trim();
