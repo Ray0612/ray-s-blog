@@ -103,7 +103,7 @@ const API = 'https://me.ray2.asia';
 const messagesEl = document.getElementById('messages');
 const input = document.getElementById('input');
 const sendBtn = document.getElementById('send');
-let history = [];
+let chatHistory = [];
 let loading = false;
 
 // Auto-resize textarea
@@ -136,7 +136,7 @@ async function send() {
   input.value = '';
   input.style.height = '44px';
   addMessage('user', msg);
-  history.push({ role: 'user', content: msg });
+  chatHistory.push({ role: 'user', content: msg });
 
   loading = true;
   sendBtn.disabled = true;
@@ -146,7 +146,7 @@ async function send() {
     const resp = await fetch(API + '/chat', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ message: msg, history: history.slice(-10) })
+      body: JSON.stringify({ message: msg, chatHistory: chatHistory.slice(-10) })
     });
     const data = await resp.json();
     removeTyping(typingId);
@@ -156,7 +156,7 @@ async function send() {
     } else {
       const reply = data.choices?.[0]?.message?.content || '……';
       addMessage('assistant', reply);
-      history.push({ role: 'assistant', content: reply });
+      chatHistory.push({ role: 'assistant', content: reply });
     }
   } catch (e) {
     removeTyping(typingId);
