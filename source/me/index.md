@@ -99,7 +99,7 @@ aside: false
 </div>
 
 <script>
-const API = 'https://ai-gateway.ray2.asia/me';
+const API = 'https://me.ray2.asia';
 const messagesEl = document.getElementById('messages');
 const input = document.getElementById('input');
 const sendBtn = document.getElementById('send');
@@ -137,14 +137,14 @@ async function send() {
   const typingId = showTyping();
 
   try {
-    const resp = await fetch(API + '/chat', {
+    var resp = await fetch(API + '/chat', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ message: msg, chatHistory: chatHistory.slice(-10) })
+      body: JSON.stringify({ message: msg, history: chatHistory.slice(-10) })
     });
-    const data = await resp.json();
+    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+    var data = await resp.json();
     removeTyping(typingId);
-
     if (data.error) {
       addMessage('assistant', '抱歉，我现在无法思考：' + data.error);
     } else {
@@ -153,6 +153,21 @@ async function send() {
       chatHistory.push({ role: 'assistant', content: reply });
     }
   } catch (e) {
+    // POST 失败时尝试 GET
+    try {
+      removeTyping(typingId);
+      var tidyTyping = showTyping();
+      const resp = await fetch(API + '/chat?msg=' + encodeURIComponent(msg));
+      if (!resp.ok) throw new Error('HTTP ' + resp.status);
+      var data = await resp.json();
+      removeTyping(tidyTyping);
+      if (data.choices) {
+        const reply = data.choices[0]?.message?.content || '……';
+        addMessage('assistant', reply);
+        chatHistory.push({ role: 'assistant', content: reply });
+        loading = false; sendBtn.disabled = false; return;
+      }
+    } catch(e2) {}
     removeTyping(typingId);
     addMessage('assistant', '连接失败: ' + e.message);
   }
