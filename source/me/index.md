@@ -160,7 +160,7 @@ async function send() {
     }
   } catch (e) {
     removeTyping(typingId);
-    addMessage('assistant', '连接失败，请稍后再试。');
+    addMessage('assistant', '连接失败: ' + e.message);
   }
 
   loading = false;
