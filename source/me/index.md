@@ -136,38 +136,20 @@ async function send() {
   sendBtn.disabled = true;
   const typingId = showTyping();
 
+  // GET 方式（在你的网络环境下 POST 被拦截了）
   try {
-    var resp = await fetch(API + '/chat', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ message: msg, history: chatHistory.slice(-10) })
-    });
+    const resp = await fetch(API + '/chat?msg=' + encodeURIComponent(msg));
     if (!resp.ok) throw new Error('HTTP ' + resp.status);
     var data = await resp.json();
     removeTyping(typingId);
     if (data.error) {
-      addMessage('assistant', '抱歉，我现在无法思考：' + data.error);
+      addMessage('assistant', '抱歉：' + data.error);
     } else {
       const reply = data.choices?.[0]?.message?.content || '……';
       addMessage('assistant', reply);
       chatHistory.push({ role: 'assistant', content: reply });
     }
   } catch (e) {
-    // POST 失败时尝试 GET
-    try {
-      removeTyping(typingId);
-      var tidyTyping = showTyping();
-      const resp = await fetch(API + '/chat?msg=' + encodeURIComponent(msg));
-      if (!resp.ok) throw new Error('HTTP ' + resp.status);
-      var data = await resp.json();
-      removeTyping(tidyTyping);
-      if (data.choices) {
-        const reply = data.choices[0]?.message?.content || '……';
-        addMessage('assistant', reply);
-        chatHistory.push({ role: 'assistant', content: reply });
-        loading = false; sendBtn.disabled = false; return;
-      }
-    } catch(e2) {}
     removeTyping(typingId);
     addMessage('assistant', '连接失败: ' + e.message);
   }
