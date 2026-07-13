@@ -58,7 +58,7 @@ code_blocks:
 # Formal:
 #   icon: link || the description || color
 social:
-  # fab fa-github: https://github.com/xxxxx || Github || '#24292e'
+  fab fa-github: https://github.com/Ray0612 || GitHub || '#24292e'
   # fas fa-envelope: mailto:xxxxxx@gmail.com || Email || '#4a7dbe'
 
 # --------------------------------------
@@ -305,7 +305,7 @@ aside:
       enable: true
       icon: fab fa-github
       text: Follow Me
-      link: https://github.com/xxxxxx
+      link: https://github.com/Ray0612
   card_announcement:
     enable: true
     content: 欢迎来到我的个人博客！这里记录着我的思考、我的学习、我的教学、我的工具.....这里还在不停的建设！你有想要的小工具或者想问的问题、想说的话可以发在这个邮箱哦 <a href="mailto:ray@ray2.asia">ray@ray2.asia</a>~常来看看吧！
