@@ -823,7 +823,7 @@ preloader:
 enter_transitions: true
 
 # Default display mode - light (default) / dark
-display_mode: light
+display_mode: dark
 
 # Configuration for beautifying the content of the article
 beautify:
@@ -1081,6 +1081,7 @@ inject:
     - <meta name="google-site-verification" content="j15UzbDCpIcxZJ8qhvYpq1f7CtUDNd3t4OSRUp9DSL4" />
     - <meta name="msvalidate.01" content="2BA54BF0AA7A0EBBC636C3EC24154972" />
     - <script>(function(){var bp=document.createElement('script');var curProtocol=window.location.protocol.split(':')[0];if(curProtocol==='https'){bp.src='https://zz.bdstatic.com/linksubmit/push.js'}else{bp.src='http://push.zhanzhang.baidu.com/push.js'};var s=document.getElementsByTagName('script')[0];s.parentNode.insertBefore(bp,s)})()</script>
+    - <script>var BGS=[{bg:'/img/bg/Van_Gogh_-_Starry_Night.jpg'},{bg:'/img/bg/Two Cut Sunflowers.jpg',h:1},{bg:'/img/bg/Cafe Terrace in Arles at Night.jpg',h:1},{bg:'/img/bg/van-gogh/1 (136)_thicken=3.0mm.png'},{bg:'/img/bg/van-gogh/1 (209)_thicken=3.0mm.png'},{bg:'/img/bg/van-gogh/1 (244)_thicken=3.0mm.png'},{bg:'/img/bg/van-gogh/1 (330)_thicken=3.0mm.png'},{bg:'/img/bg/van-gogh/1 (353)_thicken=3.0mm.png'},{bg:'/img/bg/van-gogh/1 (359)_thicken=3.0mm.png'},{bg:'/img/bg/van-gogh/1 (55)_thicken=3.0mm.png'},{bg:'/img/bg/van-gogh/1 (718)_thicken=3.0mm.png'},{bg:'/img/bg/van-gogh/1 (85)_thicken=3.0mm.png'},{bg:'/img/bg/van-gogh/A Field with dandelions_thicken=3.0mm.png'},{bg:'/img/bg/van-gogh/Blossoming Almond Tree_thicken=3.0mm.png'},{bg:'/img/bg/van-gogh/Cafe Terrace in Arles at Night_thicken=3.0mm.png',h:1},{bg:'/img/bg/van-gogh/Coal Barges_thicken=5.0mm.png'},{bg:'/img/bg/van-gogh/Evening Landscape with Rising Moon_thicken=3.0mm.png'},{bg:'/img/bg/van-gogh/Seascape at Saintes-Maries2_thicken=5.0mm.png'},{bg:'/img/bg/van-gogh/Sower_thicken=5.0mm.png'},{bg:'/img/bg/van-gogh/Starry_Night_Over_the_Rhone_thicken=3.0mm.png'},{bg:'/img/bg/van-gogh/The Seine Bridge at Asnieres_thicken=3.0mm.png'},{bg:'/img/bg/van-gogh/Torso of Venus8_thicken=3.0mm.png'}];(function(){var imgs=BGS.map(function(i){return i.bg});function pick(n){var arr=[],pool=imgs.slice();for(var i=0;i<n&&pool.length>0;i++){var idx=Math.floor(Math.random()*pool.length);arr.push(pool[idx]);pool.splice(idx,1)}return arr}var picks=pick(2);if(picks.length<2)return;var header=document.getElementById('page-header');if(header)header.style.backgroundImage='url('+picks[0]+')';document.addEventListener('DOMContentLoaded',function(){var h=document.getElementById('page-header');if(h)h.style.backgroundImage='url('+picks[0]+')'});var style=document.createElement('style');style.textContent='body{background:url('+picks[1]+') no-repeat center center fixed;background-size:cover}#footer{background:transparent!important}.layout{background:rgba(0,0,0,.45)!important;border-radius:12px;padding:20px}';document.head.appendChild(style);document.getElementById('web_bg')&&(document.getElementById('web_bg').style.backgroundImage='url('+picks[1]+')')})()</script>
   bottom:
     - <script src="/js/comments.js"></script>
     - <script>document.querySelector('#sidebar-menus .menus_items')?.addEventListener('click',function(e){var t=e.target.closest('.site-page.group');if(!t||t.classList.contains('hide')){document.querySelectorAll('#sidebar-menus .site-page.group:not(.hide)').forEach(function(el){el.classList.add('hide')})}})</script>
