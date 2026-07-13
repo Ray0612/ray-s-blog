@@ -280,8 +280,8 @@ footer:
     since: 2025
   # Copyright of theme and framework
   copyright:
-    enable: true
-    version: true
+    enable: false
+    version: false
   custom_text: <a href="https://xui.ray2.asia/cNHTtQgcDESQO7L7MJ/" target="_blank">RAY</a>
 
 # --------------------------------------
