@@ -49,7 +49,8 @@ aside: false
 .md-placeholder{display:flex;align-items:center;justify-content:center;height:100%;color:#6b7280;font-size:13px}
 .md-footer{text-align:center;font-size:12px;color:var(--text-color,#1f2937);padding:12px;margin-top:8px}
 /* 分栏 tab */
-.md-tabs{display:flex;gap:8px;margin-bottom:12px;border-bottom:2px solid var(--border-color,#e5e7eb);padding-bottom:0}
+#tab1,#tab2{flex:1;display:flex;flex-direction:column;min-height:0;overflow:hidden}
+.md-tabs{display:flex;gap:8px;margin-bottom:12px;border-bottom:2px solid var(--border-color,#e5e7eb);padding-bottom:0;flex-shrink:0}
 .md-tab{padding:10px 22px;border:none;background:none;cursor:pointer;font-size:14px;color:var(--text-meta,#6b7280);border-bottom:2px solid transparent;margin-bottom:-2px;transition:.2s;font-family:inherit}
 .md-tab:hover{color:var(--theme-color,#425aef)}
 .md-tab.active{color:var(--theme-color,#425aef);border-bottom-color:var(--theme-color,#425aef);font-weight:600}
