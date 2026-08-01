@@ -36,6 +36,12 @@ comments: false
   <div class="tool-desc">通过 R2 中转加速 GitHub 文件下载，突破国内限速</div>
 </a>
 
+<a href="/tools/md-convert/" class="tool-card">
+  <div class="tool-icon">📄</div>
+  <div class="tool-name">Markdown 转换器</div>
+  <div class="tool-desc">Markdown 转 Word / PDF，支持数学公式、代码块、表格</div>
+</a>
+
 </div>
 
 <style>
