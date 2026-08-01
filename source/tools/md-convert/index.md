@@ -22,11 +22,11 @@ aside: false
 .md-btn-import{background:var(--text-meta,#9ca3af)}
 .md-sep{width:1px;height:24px;background:var(--border-color,#e5e7eb)}
 .md-body{flex:1;display:flex;gap:12px;min-height:0}
-.md-panel{flex:1;display:flex;flex-direction:column;background:var(--card-bg,#fff);border:1px solid var(--border-color,#e5e7eb);border-radius:12px;overflow:hidden;min-width:0}
+.md-panel{flex:1;display:flex;flex-direction:column;background:var(--card-bg,#fff);border:1px solid var(--border-color,#e5e7eb);border-radius:12px;overflow:hidden;min-width:0;min-height:0}
 .md-panel-head{padding:8px 14px;font-size:13px;color:var(--text-color,#1f2937);border-bottom:1px solid var(--border-color,#e5e7eb);display:flex;justify-content:space-between;align-items:center;flex-shrink:0}
-.md-editor{flex:1;width:100%;resize:none;border:none;outline:none;padding:16px;font-family:'JetBrains Mono',Consolas,'Courier New',monospace;font-size:13.5px;line-height:1.7;background:var(--card-bg,#fff);color:var(--text-color,#1f2937);box-sizing:border-box}
+.md-editor{flex:1;width:100%;min-height:0;resize:none;border:none;outline:none;padding:16px;font-family:'JetBrains Mono',Consolas,'Courier New',monospace;font-size:13.5px;line-height:1.7;background:var(--card-bg,#fff);color:var(--text-color,#1f2937);box-sizing:border-box;overflow-y:auto}
 [data-theme="dark"] .md-editor{background:#0d1117;color:#e6edf3}
-.md-preview{flex:1;overflow-y:auto;padding:20px 24px;background:#fff;color:#1f2328}
+.md-preview{flex:1;min-height:0;overflow-y:auto;padding:20px 24px;background:#fff;color:#1f2328}
 .md-preview .markdown-body{
   font-size:14px;line-height:1.7;background:transparent;max-width:none;
   color-scheme: light;
@@ -171,6 +171,22 @@ function render() {
   } catch(e) { preview.innerHTML = '<div class="md-placeholder">渲染错误: ' + e.message + '</div>'; }
 }
 function onEdit() { render(); }
+
+// ===== 编辑器与预览同步滚动 =====
+var mdSyncing = false;
+function syncMdScroll(src, dst) {
+  if (mdSyncing) return;
+  mdSyncing = true;
+  var maxSrc = src.scrollHeight - src.clientHeight;
+  var maxDst = dst.scrollHeight - dst.clientHeight;
+  if (maxSrc > 0 && maxDst > 0) {
+    var ratio = src.scrollTop / maxSrc;
+    dst.scrollTop = ratio * maxDst;
+  }
+  mdSyncing = false;
+}
+editor.addEventListener('scroll', function() { syncMdScroll(editor, preview); });
+preview.addEventListener('scroll', function() { syncMdScroll(preview, editor); });
 
 function importFile() { document.getElementById('mdFileInput').click(); }
 function handleFile(e) {
@@ -522,7 +538,7 @@ function extractMd() {
   }).then(function(md) {
     mdExtractResult = md;
     var pv = document.getElementById('mdExtractPreview');
-    pv.innerHTML = '<textarea class="md-editor" style="height:100%;min-height:400px" readonly>' + md.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') + '</textarea>';
+    pv.innerHTML = '<textarea class="md-editor" style="height:100%;min-height:0" readonly>' + md.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') + '</textarea>';
     document.getElementById('mdDownloadMd').style.display = '';
     status2.textContent = '✅ 转换完成，可下载 .md 文件';
     btn.disabled = false;
