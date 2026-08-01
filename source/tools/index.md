@@ -39,7 +39,7 @@ comments: false
 <a href="/tools/md-convert/" class="tool-card">
   <div class="tool-icon">📄</div>
   <div class="tool-name">Markdown 转换器</div>
-  <div class="tool-desc">Markdown 转 Word / PDF，支持数学公式、代码块、表格</div>
+  <div class="tool-desc">MD ↔ Word/PDF/Excel/PPT 互转 · 支持数学公式、代码块、表格</div>
 </a>
 
 </div>

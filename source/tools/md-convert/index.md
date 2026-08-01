@@ -48,6 +48,13 @@ aside: false
 .md-preview .markdown-body table td,.md-preview .markdown-body table th{background-color:transparent !important;border-color:#d0d7de !important}
 .md-placeholder{display:flex;align-items:center;justify-content:center;height:100%;color:#6b7280;font-size:13px}
 .md-footer{text-align:center;font-size:12px;color:var(--text-color,#1f2937);padding:12px;margin-top:8px}
+/* 分栏 tab */
+.md-tabs{display:flex;gap:8px;margin-bottom:12px;border-bottom:2px solid var(--border-color,#e5e7eb);padding-bottom:0}
+.md-tab{padding:10px 22px;border:none;background:none;cursor:pointer;font-size:14px;color:var(--text-meta,#6b7280);border-bottom:2px solid transparent;margin-bottom:-2px;transition:.2s;font-family:inherit}
+.md-tab:hover{color:var(--theme-color,#425aef)}
+.md-tab.active{color:var(--theme-color,#425aef);border-bottom-color:var(--theme-color,#425aef);font-weight:600}
+[data-theme="dark"] .md-tab{color:#9ca3af}
+[data-theme="dark"] .md-tab.active{color:#fff;border-bottom-color:var(--theme-color,#425aef)}
 /* 深色模式适配 */
 [data-theme="dark"] .md-panel-head{color:#fff}
 [data-theme="dark"] .md-footer{color:#fff}
@@ -78,26 +85,52 @@ aside: false
 </style>
 
 <div class="md-wrap">
-  <div class="md-toolbar">
-    <input class="md-filename" id="mdFilename" value="document" placeholder="文件名">
-    <span style="font-size:13px;color:var(--text-meta,#9ca3af);flex-shrink:0">导出为 .docx / .pdf</span>
-    <button class="md-btn md-btn-import" onclick="importFile()">📁 导入文件</button>
-    <span class="md-sep"></span>
-    <button class="md-btn md-btn-word" onclick="convertWord()">⬇️ 转换 Word</button>
-    <button class="md-btn md-btn-pdf" onclick="convertPdf()">⬇️ 转换 PDF</button>
-    <input type="file" id="mdFileInput" accept=".md,.markdown,.txt" style="display:none" onchange="handleFile(event)">
+  <div class="md-tabs">
+    <button class="md-tab active" id="tabBtn1" onclick="switchTab(1)">📝 Markdown → Word/PDF</button>
+    <button class="md-tab" id="tabBtn2" onclick="switchTab(2)">📂 Word/PDF/Excel/PPT → Markdown</button>
   </div>
-  <div class="md-body">
-    <div class="md-panel">
-      <div class="md-panel-head">Markdown 编辑器 <span id="mdCharCount" style="font-size:11px"></span></div>
-      <textarea class="md-editor" id="mdEditor" oninput="onEdit()"></textarea>
+
+  <!-- Tab 1: MD → Word/PDF -->
+  <div id="tab1">
+    <div class="md-toolbar">
+      <input class="md-filename" id="mdFilename" value="document" placeholder="文件名">
+      <span style="font-size:13px;color:var(--text-meta,#9ca3af);flex-shrink:0">导出为 .docx / .pdf</span>
+      <button class="md-btn md-btn-import" onclick="importFile()">📁 导入文件</button>
+      <span class="md-sep"></span>
+      <button class="md-btn md-btn-word" onclick="convertWord()">⬇️ 转换 Word</button>
+      <button class="md-btn md-btn-pdf" onclick="convertPdf()">⬇️ 转换 PDF</button>
+      <input type="file" id="mdFileInput" accept=".md,.markdown,.txt" style="display:none" onchange="handleFile(event)">
     </div>
-    <div class="md-panel">
-      <div class="md-panel-head">实时预览</div>
-      <div class="md-preview" id="mdPreview"><div class="md-placeholder">输入 Markdown 开始预览…</div></div>
+    <div class="md-body">
+      <div class="md-panel">
+        <div class="md-panel-head">Markdown 编辑器 <span id="mdCharCount" style="font-size:11px"></span></div>
+        <textarea class="md-editor" id="mdEditor" oninput="onEdit()"></textarea>
+      </div>
+      <div class="md-panel">
+        <div class="md-panel-head">实时预览</div>
+        <div class="md-preview" id="mdPreview"><div class="md-placeholder">输入 Markdown 开始预览…</div></div>
+      </div>
     </div>
+    <div class="md-footer" id="mdStatus">✍️ 纯浏览器转换 · 公式在 Word 中可原生编辑</div>
   </div>
-  <div class="md-footer" id="mdStatus">✍️ 纯浏览器转换 · 公式在 Word 中可原生编辑</div>
+
+  <!-- Tab 2: 文件 → MD -->
+  <div id="tab2" style="display:none">
+    <div class="md-toolbar">
+      <button class="md-btn md-btn-import" onclick="importOtherFile()">📁 选择文件</button>
+      <span style="font-size:13px;color:var(--text-meta,#9ca3af);flex-shrink:0">支持 .pdf .docx .xlsx .pptx</span>
+      <button class="md-btn md-btn-word" id="mdExtractBtn" onclick="extractMd()">⚙️ 转换为 Markdown</button>
+      <button class="md-btn md-btn-pdf" id="mdDownloadMd" style="display:none" onclick="downloadMd()">⬇️ 下载 .md</button>
+      <input type="file" id="mdOtherInput" accept=".pdf,.docx,.xlsx,.pptx" style="display:none" onchange="handleOtherFile(event)">
+    </div>
+    <div class="md-body">
+      <div class="md-panel">
+        <div class="md-panel-head">转换结果 <span id="mdExtractName" style="font-size:11px"></span></div>
+        <div class="md-preview" id="mdExtractPreview"><div class="md-placeholder">选择文件并转换，Markdown 结果会显示在这里</div></div>
+      </div>
+    </div>
+    <div class="md-footer" id="mdStatus2"></div>
+  </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/marked@12/lib/marked.umd.js"></script>
@@ -450,6 +483,62 @@ function convertPdf() {
       statusEl.textContent = '✅ 已下载 ' + filename;
     }).catch(function(e) { statusEl.textContent = '❌ PDF 转换失败: ' + e.message; });
   }).catch(function(e) { statusEl.textContent = '❌ 转换失败: ' + e.message; });
+}
+
+// ===== Tab 2: 文件 → Markdown（MarkItDown）=====
+var mdExtractFile = null;
+var mdExtractResult = '';
+
+function switchTab(n) {
+  document.getElementById('tab1').style.display = n === 1 ? 'block' : 'none';
+  document.getElementById('tab2').style.display = n === 2 ? 'block' : 'none';
+  document.getElementById('tabBtn1').classList.toggle('active', n === 1);
+  document.getElementById('tabBtn2').classList.toggle('active', n === 2);
+}
+
+function importOtherFile() { document.getElementById('mdOtherInput').click(); }
+function handleOtherFile(e) {
+  var f = e.target.files[0]; if (!f) return;
+  mdExtractFile = f;
+  document.getElementById('mdExtractName').textContent = f.name;
+  document.getElementById('mdExtractPreview').innerHTML = '<div class="md-placeholder">已选择：' + f.name + '，点击「转换为 Markdown」</div>';
+  document.getElementById('mdDownloadMd').style.display = 'none';
+  document.getElementById('mdStatus2').textContent = '';
+  e.target.value = '';
+}
+
+function extractMd() {
+  var status2 = document.getElementById('mdStatus2');
+  if (!mdExtractFile) { status2.textContent = '⚠️ 请先选择文件'; return; }
+  status2.textContent = '⏳ 正在转换，请稍候…';
+  var btn = document.getElementById('mdExtractBtn');
+  btn.disabled = true;
+  fetch('https://md-extract.ray2.asia/?' + encodeURIComponent(mdExtractFile.name), {
+    method: 'POST',
+    body: mdExtractFile
+  }).then(function(r) {
+    if (!r.ok) return r.json().then(function(d) { throw new Error(d.error || ('HTTP ' + r.status)); });
+    return r.text();
+  }).then(function(md) {
+    mdExtractResult = md;
+    var pv = document.getElementById('mdExtractPreview');
+    pv.innerHTML = '<textarea class="md-editor" style="height:100%;min-height:400px" readonly>' + md.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') + '</textarea>';
+    document.getElementById('mdDownloadMd').style.display = '';
+    status2.textContent = '✅ 转换完成，可下载 .md 文件';
+    btn.disabled = false;
+  }).catch(function(e) {
+    status2.textContent = '❌ 转换失败: ' + e.message;
+    btn.disabled = false;
+  });
+}
+
+function downloadMd() {
+  if (!mdExtractResult) return;
+  var base = (mdExtractFile ? mdExtractFile.name.replace(/\.[^.]+$/, '') : 'document') + '.md';
+  var blob = new Blob([mdExtractResult], { type: 'text/markdown;charset=utf-8' });
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a'); a.href = url; a.download = base; a.click();
+  URL.revokeObjectURL(url);
 }
 
 editor.value = '# Markdown 转换器\n\n一个纯浏览器运行的 **Markdown → Word / PDF** 工具。\n\n## 支持数学公式\n\n行内公式：$E = mc^2$，以及 $x^2 + y^2 = z^2$\n\n块级公式：\n\n$$\n\\int_0^\\infty e^{-x^2} dx = \\frac{\\sqrt{\\pi}}{2}\n$$\n\n## 支持的元素\n\n- **加粗** / *斜体* / ~~删除线~~\n- `行内代码` 和代码块\n- [链接](https://blog.ray2.asia)\n- 表格、引用、列表\n\n### 示例表格\n\n| 功能 | 支持 |\n|------|------|\n| Word 导出 | ✅ |\n| PDF 导出 | ✅ |\n| 公式可编辑 | ✅ |\n\n> 提示：转换出的 Word 中，公式是原生对象，可在 Word 里双击编辑。\n\n```python\ndef hello():\n    print("Hello, Markdown!")\n```';
