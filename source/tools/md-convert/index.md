@@ -507,8 +507,8 @@ var mdExtractFile = null;
 var mdExtractResult = '';
 
 function switchTab(n) {
-  document.getElementById('tab1').style.display = n === 1 ? 'block' : 'none';
-  document.getElementById('tab2').style.display = n === 2 ? 'block' : 'none';
+  document.getElementById('tab1').style.display = n === 1 ? 'flex' : 'none';
+  document.getElementById('tab2').style.display = n === 2 ? 'flex' : 'none';
   document.getElementById('tabBtn1').classList.toggle('active', n === 1);
   document.getElementById('tabBtn2').classList.toggle('active', n === 2);
 }
@@ -539,7 +539,9 @@ function extractMd() {
   }).then(function(md) {
     mdExtractResult = md;
     var pv = document.getElementById('mdExtractPreview');
-    pv.innerHTML = '<textarea class="md-editor" style="height:100%;min-height:0" readonly>' + md.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') + '</textarea>';
+    pv.style.position = 'relative';
+    pv.style.overflow = 'hidden';
+    pv.innerHTML = '<textarea class="md-editor" style="position:absolute;inset:0;width:100%;height:100%;min-height:0;resize:none" readonly>' + md.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') + '</textarea>';
     document.getElementById('mdDownloadMd').style.display = '';
     status2.textContent = '✅ 转换完成，可下载 .md 文件';
     btn.disabled = false;
