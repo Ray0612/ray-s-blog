@@ -83,6 +83,7 @@ aside: false
 .admin-back a{color:#9ca3af;text-decoration:none}
 .admin-back a:hover{color:#425aef}
 .admin-main{flex:1;min-width:0;background:var(--card-bg,#fff);border:1px solid var(--border-color,#e5e7eb);border-radius:14px;padding:22px}
+.admin-main .acc-card{background:transparent;border:none;padding:0}
 .admin-main h3{font-size:15px;color:#1f2937;margin:0 0 14px}
 [data-theme="dark"] .admin-main h3{color:#e5e7eb}
 .a-search{display:flex;gap:8px;margin-bottom:14px}
@@ -145,13 +146,27 @@ aside: false
     return (d.getMonth() + 1) + '-' + d.getDate() + ' ' + ('0' + d.getHours()).slice(-2) + ':' + ('0' + d.getMinutes()).slice(-2);
   }
 
+  // 刷新余额显示（充值/兑换/切 tab 时调用，避免必须刷新页面）
+  function refreshBalance() {
+    fetch(AUTH + '/auth/me', { headers: { 'Authorization': 'Bearer ' + token } })
+      .then(function (r) { return r.json(); })
+      .then(function (d) {
+        if (d.ok && d.user) {
+          curUser = d.user;
+          var bal = document.getElementById('accBal');
+          if (bal) bal.textContent = '余额：' + (d.user.balance || 0) + ' 点';
+        }
+      })
+      .catch(function () {});
+  }
+
   function showLoginMsg() {
     document.getElementById('accWrap').innerHTML = '<div class="acc-login-msg"><p>请先登录后查看</p><button onclick="location.href=\'/\'">返回首页登录</button></div>';
   }
 
   // ===== 个人中心 =====
-  function render(u) {
-    var wrap = document.getElementById('accWrap');
+  function render(u, container) {
+    var wrap = container || document.getElementById('accWrap');
     wrap.innerHTML = '' +
       '<div class="acc-card">' +
         '<div class="acc-top">' +
@@ -258,6 +273,7 @@ aside: false
 
   function accTab(tab) {
     var body = document.getElementById('accBody');
+    refreshBalance();
     if (tab === 'favs') {
       body.innerHTML = '<div class="a-load">加载中…</div>';
       fetch(AUTH + '/auth/favorites', { headers: { 'Authorization': 'Bearer ' + token } })
@@ -339,6 +355,7 @@ aside: false
             msg.textContent = '✅ ' + d.msg;
             document.getElementById('accRedeem').value = '';
             if (window.__rayRefreshAuth) window.__rayRefreshAuth();
+            refreshBalance();
           })
           .catch(function () { msg.textContent = '网络错误'; });
       });
@@ -513,6 +530,7 @@ aside: false
         .then(function (d) {
           if (!d.ok) { msg.textContent = d.error || '提交失败'; return; }
           msg.textContent = '✅ ' + (d.msg || '已提交');
+          refreshBalance();
           setTimeout(function () { servicesPage(body); }, 1200);
         })
         .catch(function () { msg.textContent = '网络错误'; });
@@ -533,6 +551,7 @@ aside: false
         .then(function (d) {
           if (!d.ok) { msg.textContent = d.error || '开通失败'; return; }
           msg.textContent = '✅ ' + (d.msg || '已开通');
+          refreshBalance();
           setTimeout(function () { servicesPage(body); }, 1200);
         })
         .catch(function () { msg.textContent = '网络错误'; });
@@ -577,6 +596,7 @@ aside: false
                 clearInterval(iv);
                 area.innerHTML = '<div class="acc-qr"><p style="color:#059669;font-weight:600">✅ 充值成功，已到账 ' + st.points + ' 点</p></div>';
                 if (window.__rayRefreshAuth) window.__rayRefreshAuth();
+                refreshBalance();
               } else if (st.ok && (st.status === 'failed')) {
                 clearInterval(iv);
                 area.innerHTML = '<div class="acc-hint">订单已失效，请重试</div>';
@@ -606,6 +626,7 @@ aside: false
           '<div class="admin-menu" data-page="recharge">💰 充值补录</div>' +
           '<div class="admin-menu" data-page="revenue">💰 总营收统计</div>' +
           '<div class="admin-menu" data-page="redeem">🎟️ 兑换码管理</div>' +
+          '<div class="admin-menu" data-page="me">🙋 个人中心</div>' +
           '<div class="admin-back"><a href="/">← 返回博客</a></div>' +
         '</div>' +
         '<div class="admin-main" id="adminMain"></div>' +
@@ -645,15 +666,32 @@ aside: false
     else if (page === 'revenue') revenuePage(main);
     else if (page === 'recharge') rechargePage(main);
     else if (page === 'redeem') redeemPage(main);
+    else if (page === 'me') render(curUser, main);
   }
 
   // 单服务监控：用户列表 + token（成本占位）
   function monitorServicePage(main, type) {
     var names = { email: '📧 邮箱服务', digital: '🤖 数字人聊天', daily: '📰 每日日报', gateway: '🌐 AI 网关' };
     main.innerHTML = '<h3>' + names[type] + '</h3><div class="a-load">加载中…</div>';
-    adminApi('/admin/monitor/' + type).then(function (d) {
+    Promise.all([
+      adminApi('/admin/monitor/' + type),
+      type === 'gateway' ? adminApi('/admin/config') : Promise.resolve(null)
+    ]).then(function (res) {
+      var d = res[0], cfg = res[1];
       if (!d.ok) { main.innerHTML = '<h3>' + names[type] + '</h3><div class="a-empty">' + (d.error || '加载失败') + '</div>'; return; }
       var html = '<h3>' + names[type] + '</h3>';
+      if (type === 'gateway' && cfg && cfg.ok) {
+        var realTxt = cfg.real_rate ? '<b>' + cfg.real_rate.toFixed(4) + '</b>' : '<b style="color:#ef4444">获取失败</b>';
+        var profitTxt = cfg.profit_rate ? (cfg.profit_rate * 100).toFixed(1) + '%' : '-';
+        html += '<div class="mon-card" style="margin-bottom:12px"><div class="mon-name">定价参数（汇率 / 倍率）</div><div class="mon-items" style="gap:8px;flex-wrap:wrap">' +
+          '<span>设定汇率 <input type="number" id="cfgRate" value="' + cfg.rate + '" step="0.1" min="0.1" style="width:76px;padding:4px 6px;border:1px solid #d1d5db;border-radius:6px;font-size:13px"></span>' +
+          '<span>倍率 <input type="number" id="cfgMul" value="' + cfg.multiplier + '" step="0.1" min="0.1" style="width:76px;padding:4px 6px;border:1px solid #d1d5db;border-radius:6px;font-size:13px"></span>' +
+          '<button class="a-btn primary" id="cfgSave" style="padding:5px 14px">保存</button>' +
+          '</div>' +
+          '<div class="mon-name" style="margin-top:8px;font-size:12px;color:#6b7280;font-weight:400">实时美元/人民币汇率：' + realTxt + '</div>' +
+          '<div class="mon-name" style="margin-top:4px;font-size:12px;color:#6b7280;font-weight:400">利润率：(设定汇率 × 倍率) ÷ 真实汇率 = <b id="cfgProfit" data-real="' + (cfg.real_rate || '') + '" style="color:#425aef">' + profitTxt + '</b></div>' +
+          '<div class="mon-name" style="margin-top:4px;color:#9ca3af;font-size:12px;font-weight:400">保存后用户端定价表按新值计算</div></div>';
+      }
       html += '<div class="mon-card" style="margin-bottom:12px"><div class="mon-name">Token 消耗</div><div class="mon-items">' +
         '<span>输入：<b>' + d.tokens.input + '</b></span><span>输出：<b>' + d.tokens.output + '</b></span>' +
         (d.calls !== undefined ? '<span>调用次数：<b>' + d.calls + '</b></span>' : '') +
@@ -672,8 +710,35 @@ aside: false
         html += '<div class="a-empty">暂无用户数据</div>';
       }
       main.innerHTML = html;
+      if (type === 'gateway') bindGatewayConfig(main);
       bindMonitorToggle(main);
     }).catch(function () { main.innerHTML = '<h3>' + names[type] + '</h3><div class="a-empty">网络错误</div>'; });
+  }
+
+  function bindGatewayConfig(main) {
+    var btn = main.querySelector('#cfgSave');
+    if (!btn) return;
+    var rateEl = main.querySelector('#cfgRate');
+    var mulEl = main.querySelector('#cfgMul');
+    var profitEl = main.querySelector('#cfgProfit');
+    function updateProfit() {
+      var r = parseFloat(rateEl.value) || 0;
+      var m = parseFloat(mulEl.value) || 0;
+      var real = parseFloat(profitEl.getAttribute('data-real')) || 0;
+      profitEl.textContent = (r > 0 && m > 0 && real > 0) ? (r * m / real * 100).toFixed(1) + '%' : '-';
+    }
+    rateEl.addEventListener('input', updateProfit);
+    mulEl.addEventListener('input', updateProfit);
+    btn.addEventListener('click', function () {
+      var rate = parseFloat(rateEl.value);
+      var mul = parseFloat(mulEl.value);
+      if (!isFinite(rate) || rate <= 0) { toast('请输入有效汇率'); return; }
+      if (!isFinite(mul) || mul <= 0) { toast('请输入有效倍率'); return; }
+      btn.disabled = true;
+      adminApi('/admin/config', { method: 'POST', body: JSON.stringify({ rate: rate, multiplier: mul }) })
+        .then(function (d) { btn.disabled = false; toast(d.ok ? '已保存' : (d.error || '保存失败')); })
+        .catch(function () { btn.disabled = false; toast('网络错误'); });
+    });
   }
 
   function bindMonitorToggle(main) {
