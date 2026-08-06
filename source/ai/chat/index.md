@@ -145,6 +145,11 @@ comments: false
   padding: 3px 0;
 }
 .chat-guide:hover { color: #425aef; }
+.chat-topup {
+  padding: 4px 12px; border-radius: 6px; font-size: 13px; text-decoration: none;
+  background: #425aef; color: #fff; white-space: nowrap;
+}
+.chat-topup:hover { opacity: 0.85; color: #fff; }
 
 /* 输入区 */
 .chat-ft { padding: 12px 16px 14px; border-top: 1px solid #e5e7eb; flex-shrink: 0; }
@@ -238,6 +243,7 @@ comments: false
         <option value="qwen">Qwen · 免费</option>
       </select>
       <select id="mSel2" style="display:none" onchange="curModel=this.value;highlightModel(curModel)"></select>
+      <a class="chat-topup" href="/account/?tab=recharge" target="_blank">去充值</a>
     </div>
     <div class="chat-hd-r">
       <span id="tokCount" class="tok-count" title="本次对话 Token 消耗">token：0k</span>

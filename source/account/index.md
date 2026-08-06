@@ -261,6 +261,7 @@ aside: false
     });
 
     // tab 切换
+    var initTab = (new URLSearchParams(location.search)).get('tab') || 'favs';
     wrap.querySelectorAll('.acc-tab').forEach(function (t) {
       t.addEventListener('click', function () {
         wrap.querySelectorAll('.acc-tab').forEach(function (x) { x.classList.remove('active'); });
@@ -268,7 +269,10 @@ aside: false
         accTab(t.getAttribute('data-tab'));
       });
     });
-    accTab('favs');
+    wrap.querySelectorAll('.acc-tab').forEach(function (x) { x.classList.remove('active'); });
+    var initEl = wrap.querySelector('.acc-tab[data-tab="' + initTab + '"]');
+    if (initEl) initEl.classList.add('active');
+    accTab(initTab);
   }
 
   function accTab(tab) {
