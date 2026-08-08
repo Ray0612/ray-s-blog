@@ -916,13 +916,26 @@ aside: false
       adminApi('/admin/redeem-list').then(function (d) {
         if (!d.ok) { main.querySelector('#rrList').innerHTML = '<div class="a-empty">' + (d.error || '加载失败') + '</div>'; return; }
         if (!d.codes.length) { main.querySelector('#rrList').innerHTML = '<div class="a-empty">暂无兑换码</div>'; return; }
-        var html = '<table class="a-table"><tr><th>兑换码</th><th>点数</th><th>状态</th><th>创建时间</th></tr>';
+        var html = '<table class="a-table"><tr><th>兑换码</th><th>点数</th><th>状态</th><th>创建时间</th><th>操作</th></tr>';
         d.codes.forEach(function (c) {
           var st = c.status === 'unused' ? '<span class="badge ok">未使用</span>' : '<span class="badge bad">已使用</span>';
-          html += '<tr><td style="font-family:monospace">' + esc(c.code) + '</td><td>' + c.points + '</td><td>' + st + '</td><td>' + fmtTime(c.created_at) + '</td></tr>';
+          var op = c.status === 'unused' ? '<button class="a-btn danger rr-del" data-id="' + c.id + '">失效并删除</button>' : '';
+          html += '<tr><td style="font-family:monospace">' + esc(c.code) + '</td><td>' + c.points + '</td><td>' + st + '</td><td>' + fmtTime(c.created_at) + '</td><td>' + op + '</td></tr>';
         });
         html += '</table>';
         main.querySelector('#rrList').innerHTML = html;
+        main.querySelectorAll('.rr-del').forEach(function (btn) {
+          btn.addEventListener('click', function () {
+            var id = parseInt(btn.getAttribute('data-id'));
+            if (!confirm('确定要失效并删除该兑换码吗？删除后无法恢复')) return;
+            btn.disabled = true;
+            adminApi('/admin/redeem-delete', { method: 'POST', body: JSON.stringify({ id: id }) }).then(function (d) {
+              if (!d.ok) { toast(d.error || '删除失败'); btn.disabled = false; return; }
+              toast('已删除');
+              loadRedeem();
+            });
+          });
+        });
       });
     };
     loadRedeem();
