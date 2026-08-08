@@ -103,6 +103,8 @@ comments: false
 [data-theme="dark"] .m-row.ma .m-b { background: #1f2937; color: #e5e7eb; }
 .m-row.me .m-b { background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; font-size: 13px; }
 [data-theme="dark"] .m-row.me .m-b { background: #2d1a1a; color: #f87171; border-color: #7f1d1d; }
+.stream-wait { color: #9ca3af; }
+.stream-empty { color: #9ca3af; font-style: italic; }
 
 /* MD in bubble */
 .m-b p { margin: 4px 0; }
@@ -188,6 +190,7 @@ comments: false
 .typing { display: flex; gap: 4px; padding: 4px 0; }
 .typing span { width: 6px; height: 6px; border-radius: 50%; background: #9ca3af; animation: t 1.2s infinite; }
 .typing span:nth-child(2) { animation-delay: 0.2s; }
+.typing-hint { margin-top: 6px; font-size: 12px; color: #9ca3af; }
 .typing span:nth-child(3) { animation-delay: 0.4s; }
 @keyframes t { 0%,60%,100%{opacity:.3;transform:translateY(0)} 30%{opacity:1;transform:translateY(-4px)} }
 
@@ -554,7 +557,7 @@ function addMsg(role, text, mk) {
   msgBox.scrollTop = msgBox.scrollHeight;
 }
 
-function showTyping() {
+function showTyping(mn) {
   var row = document.createElement('div');
   row.className = 'm-row ma';
   row.id = '_typing';
@@ -563,11 +566,107 @@ function showTyping() {
   av.textContent = 'A';
   var b = document.createElement('div');
   b.className = 'm-b';
-  b.innerHTML = '<div class="typing"><span></span><span></span><span></span></div>';
+  var heavy = mn && /gpt-5\.6|deepseek-v4-pro|grok-4-1-fast-reasoning/.test(mn);
+  b.innerHTML = '<div class="typing"><span></span><span></span><span></span></div>' + (heavy ? '<div class="typing-hint">正在深度思考，推理模型可能需要 1-2 分钟…</div>' : '');
   row.appendChild(av);
   row.appendChild(b);
   msgBox.appendChild(row);
   msgBox.scrollTop = msgBox.scrollHeight;
+}
+
+// 流式：创建可增量更新的 AI 气泡
+function streamAdd(mn) {
+  var row = document.createElement('div');
+  row.className = 'm-row ma';
+  var av = document.createElement('div');
+  av.className = 'm-av';
+  av.textContent = 'A';
+  var b = document.createElement('div');
+  b.className = 'm-b';
+  var md = document.createElement('div');
+  md.className = 'md';
+  b.appendChild(md);
+  if (mn && (NAMES[mn] || mn)) {
+    var tag = document.createElement('div');
+    tag.className = 'm-tag';
+    tag.textContent = NAMES[mn] || mn;
+    b.appendChild(tag);
+  }
+  var cp = document.createElement('button');
+  cp.className = 'm-copy';
+  cp.textContent = '复制';
+  b.appendChild(cp);
+  row.appendChild(av);
+  row.appendChild(b);
+  msgBox.appendChild(row);
+  msgBox.scrollTop = msgBox.scrollHeight;
+  return { md: md, row: row };
+}
+
+// 流式：读取 SSE 流并逐字渲染，结束后记 token 并入库
+function handleStream(r, mn) {
+  var bub = streamAdd(mn);
+  var md = bub.md;
+  bub.row.querySelector('.m-copy').onclick = function() { copyToClipboard(full); showToast('已复制'); };
+  hideTyping();
+  var full = '';
+  var usage = null;
+  var lastRender = 0;
+  var finished = false;
+
+  function render() {
+    var now = Date.now();
+    if (now - lastRender < 80 && full) return;
+    lastRender = now;
+    md.innerHTML = full ? mdRender(full) : '<span class="stream-wait">正在生成…</span>';
+    msgBox.scrollTop = msgBox.scrollHeight;
+  }
+
+  function done() {
+    if (finished) return;
+    finished = true;
+    md.innerHTML = full ? mdRender(full) : '<div class="stream-empty">模型未返回内容，请重试。</div>';
+    msgBox.scrollTop = msgBox.scrollHeight;
+    var total = usage ? (usage.total_tokens || ((usage.prompt_tokens || 0) + (usage.completion_tokens || 0))) : 0;
+    if (total) { usedTokens += total; updateTokDisplay(); }
+    messages.push({ role: 'assistant', content: full });
+    busy = false;
+    sendBtn.disabled = true;
+  }
+
+  var reader = r.body.getReader();
+  var decoder = new TextDecoder();
+  var buf = '';
+  function pump() {
+    return reader.read().then(function(res) {
+      if (res.done) { done(); return; }
+      buf += decoder.decode(res.value, { stream: true });
+      var lines = buf.split('\n');
+      buf = lines.pop();
+      for (var i = 0; i < lines.length; i++) {
+        var s = lines[i].trim();
+        if (s.indexOf('data:') !== 0) continue;
+        var j = s.slice(5).trim();
+        if (!j || j === '[DONE]') continue;
+        var d;
+        try { d = JSON.parse(j); } catch (e) { continue; }
+        if (d.usage) usage = d.usage;
+        var delta = d.choices && d.choices[0] && d.choices[0].delta;
+        if (delta && delta.content) full += delta.content;
+        render();
+      }
+      return pump();
+    }).catch(function(e) {
+      if (finished) return;
+      finished = true;
+      hideTyping();
+      if (full) { md.innerHTML = mdRender(full); messages.push({ role: 'assistant', content: full }); }
+      addMsg('error', '流式响应中断：' + e.message);
+      busy = false;
+      sendBtn.disabled = true;
+    });
+  }
+  return pump();
 }
 function hideTyping() {
   var el = document.getElementById('_typing');
@@ -636,10 +735,9 @@ function sendMsg(e) {
   }
   addMsg('user', displayText);
   messages.push({role:'user', content:userContent, display:displayText});
-  showTyping();
-
   var mk = mSel.value;
   var mn = (FAM[mk] ? curModel : null) || MM[mk];
+  showTyping(mn);
 
   // 付费模型（GPT/Grok）需要登录
   if (FAM[mk] && !getToken()) {
@@ -659,33 +757,19 @@ function sendMsg(e) {
     body: JSON.stringify({
       model: mn,
       messages: apiMessages,
-      max_tokens: 16384
+      max_tokens: 16384,
+      stream: true
     })
   }).then(function(r) {
-    return r.json().then(function(d) {
-      if (!r.ok) {
+    if (!r.ok) {
+      return r.json().then(function(d) {
         var e = new Error(d && d.error ? d.error : ('HTTP ' + r.status));
         e.status = r.status;
         e.data = d || {};
         throw e;
-      }
-      return d;
-    });
-  }).then(function(d) {
-    var reply = d.choices && d.choices[0] && d.choices[0].message ? (d.choices[0].message.content || '') : '';
-    var fr = d.choices && d.choices[0] ? (d.choices[0].finish_reason || '') : '';
-    var u = d.usage || {};
-    usedTokens += (u.total_tokens || ((u.prompt_tokens || 0) + (u.completion_tokens || 0))) || 0;
-    updateTokDisplay();
-    hideTyping();
-    if (!reply && fr === 'length') {
-      addMsg('error', '回复过长被截断，模型只生成了思考过程。请分小段提问，或换用 DeepSeek / GLM 等模型。');
-    } else if (!reply) {
-      addMsg('error', '模型未返回内容，请重试。');
-    } else {
-      addMsg('ai', reply, mn);
+      });
     }
-    messages.push({role:'assistant', content:reply});
+    return handleStream(r, mn);
   }).catch(function(e) {
     hideTyping();
     if (e.status === 401) {
