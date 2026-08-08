@@ -659,7 +659,7 @@ function sendMsg(e) {
     body: JSON.stringify({
       model: mn,
       messages: apiMessages,
-      max_tokens: 4096
+      max_tokens: 16384
     })
   }).then(function(r) {
     return r.json().then(function(d) {
@@ -672,12 +672,19 @@ function sendMsg(e) {
       return d;
     });
   }).then(function(d) {
-    var reply = d.choices && d.choices[0] && d.choices[0].message ? d.choices[0].message.content : JSON.stringify(d);
+    var reply = d.choices && d.choices[0] && d.choices[0].message ? (d.choices[0].message.content || '') : '';
+    var fr = d.choices && d.choices[0] ? (d.choices[0].finish_reason || '') : '';
     var u = d.usage || {};
     usedTokens += (u.total_tokens || ((u.prompt_tokens || 0) + (u.completion_tokens || 0))) || 0;
     updateTokDisplay();
     hideTyping();
-    addMsg('ai', reply, mn);
+    if (!reply && fr === 'length') {
+      addMsg('error', '回复过长被截断，模型只生成了思考过程。请分小段提问，或换用 DeepSeek / GLM 等模型。');
+    } else if (!reply) {
+      addMsg('error', '模型未返回内容，请重试。');
+    } else {
+      addMsg('ai', reply, mn);
+    }
     messages.push({role:'assistant', content:reply});
   }).catch(function(e) {
     hideTyping();
