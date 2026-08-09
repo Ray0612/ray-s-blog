@@ -186,6 +186,7 @@ comments: false
 .chat-filebar .fname{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .chat-filebar .frm{flex-shrink:0;color:#9ca3af}
 .chat-filebar .fdel{cursor:pointer;color:#ef4444;flex-shrink:0;border:none;background:none;font-size:14px;padding:0}
+.chat-filebar .warn{color:#d97706}
 /* 打字动画 */
 .typing { display: flex; gap: 4px; padding: 4px 0; }
 .typing span { width: 6px; height: 6px; border-radius: 50%; background: #9ca3af; animation: t 1.2s infinite; }
@@ -678,6 +679,7 @@ var pendingFile = null;
 function handleFileSelect(e) {
   var f = e.target.files[0];
   if (!f) return;
+  if (f.size > 10 * 1024 * 1024) { alert('文件超过 10MB 上限，请压缩后重新上传'); return; }
   var ext = (f.name.split('.').pop() || '').toLowerCase();
   var imgExts = ['png','jpg','jpeg','gif','webp','bmp'];
   var docExts = ['pdf','docx','doc','pptx','ppt','xlsx','xls'];
@@ -704,7 +706,9 @@ function updateFileBar() {
   var bar = document.getElementById('fileBar');
   if (!pendingFile) { bar.style.display = 'none'; return; }
   var label = pendingFile.type === 'image' ? '🖼️ 图片' : '📄 文件';
-  bar.innerHTML = '<span class="fname">' + escHtml(pendingFile.name) + '</span><span class="frm">' + label + '</span><button class="fdel" onclick="clearFile()">✕</button>';
+  var tip = '';
+  if (pendingFile.type === 'text' && pendingFile.content.length > 200000) tip = '<span class="frm warn">仅发送前 200KB</span>';
+  bar.innerHTML = '<span class="fname">' + escHtml(pendingFile.name) + '</span><span class="frm">' + label + '</span>' + tip + '<button class="fdel" onclick="clearFile()">✕</button>';
   bar.style.display = 'flex';
 }
 function clearFile() { pendingFile = null; updateFileBar(); }
@@ -725,7 +729,7 @@ function sendMsg(e) {
     if (pendingFile.type === 'image') {
       userContent = [{ type: 'text', text: text || '请分析这张图片' }, { type: 'image_url', image_url: { url: pendingFile.content } }];
     } else {
-      userContent = (text ? text + '\n\n' : '') + '【文件：' + pendingFile.name + '】\n' + pendingFile.content.slice(0, 20000);
+      userContent = (text ? text + '\n\n' : '') + '【文件：' + pendingFile.name + '】\n' + pendingFile.content.slice(0, 200000);
     }
     displayText = fileLabel + (text ? '\n' + text : '');
     pendingFile = null; updateFileBar();
