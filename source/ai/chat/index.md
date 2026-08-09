@@ -810,7 +810,29 @@ function sendMsg(e) {
     return;
   }
 
-  runChat(messages.slice(-20).map(function (m) { return { role: m.role, content: m.content }; }), mn);
+  runChat(buildContext(messages), mn);
+}
+
+// 构建发给模型的上下文：最近 recent 条保留全文，更早的长内容/文件截断，降低 token 消耗
+function buildContext(messages) {
+  var recent = 6;
+  var arr = messages.slice(-20);
+  return arr.map(function (m, i) {
+    if (i >= arr.length - recent) return { role: m.role, content: m.content };
+    return { role: m.role, content: truncateCtx(m.content) };
+  });
+}
+function truncateCtx(content) {
+  if (typeof content !== 'string') return content;
+  if (content.length <= 600) return content;
+  var fi = content.indexOf('【文件：');
+  if (fi >= 0) {
+    var nl = content.indexOf('\n', fi);
+    var head = content.slice(0, Math.min(fi, 200));
+    var mark = nl > 0 ? content.slice(fi, nl) : '【文件】';
+    return (head + ' ' + mark + '（文件内容省略）').trim();
+  }
+  return content.slice(0, 600) + '\n…（历史内容省略）';
 }
 
 function newChat() {
