@@ -105,6 +105,8 @@ comments: false
 [data-theme="dark"] .m-row.me .m-b { background: #2d1a1a; color: #f87171; border-color: #7f1d1d; }
 .stream-wait { color: #9ca3af; }
 .stream-empty { color: #9ca3af; font-style: italic; }
+.err-retry { margin-top: 8px; padding: 4px 14px; border: none; border-radius: 6px; background: #425aef; color: #fff; font-size: 12.5px; cursor: pointer; }
+.err-retry:hover { opacity: 0.85; }
 
 /* MD in bubble */
 .m-b p { margin: 4px 0; }
@@ -520,7 +522,7 @@ function onKey(e) {
   if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMsg(); }
 }
 
-function addMsg(role, text, mk) {
+function addMsg(role, text, mk, onRetry) {
   // 移除空状态
   var empty = msgBox.querySelector('.cempty');
   if (empty) empty.remove();
@@ -538,6 +540,13 @@ function addMsg(role, text, mk) {
     b.textContent = text;
   } else {
     b.innerHTML = mdRender(text);
+    if (role === 'error' && onRetry) {
+      var rb = document.createElement('button');
+      rb.className = 'err-retry';
+      rb.textContent = '重试';
+      rb.onclick = function() { onRetry(); };
+      b.appendChild(rb);
+    }
     if (role === 'ai') {
       if (mk && (NAMES[mk] || mk)) {
         var tag = document.createElement('div');
@@ -714,6 +723,56 @@ function updateFileBar() {
 function clearFile() { pendingFile = null; updateFileBar(); }
 function escHtml(s) { return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
+var lastRetry = null;
+
+// 执行一次流式请求（sendMsg 和超时重试共用）
+function runChat(apiMessages, mn) {
+  lastRetry = null;
+  var hdrs = { 'Content-Type': 'application/json' };
+  if (getToken()) hdrs['Authorization'] = 'Bearer ' + getToken();
+  fetch(API, {
+    method: 'POST',
+    headers: hdrs,
+    body: JSON.stringify({ model: mn, messages: apiMessages, max_tokens: 16384, stream: true })
+  }).then(function(r) {
+    if (!r.ok) {
+      return r.json().then(function(d) {
+        var e = new Error(d && d.error ? d.error : ('HTTP ' + r.status));
+        e.status = r.status;
+        e.data = d || {};
+        throw e;
+      });
+    }
+    return handleStream(r, mn);
+  }).catch(function(e) {
+    hideTyping();
+    if (e.status === 401) {
+      addMsg('error', '使用 GPT / Grok 需登录，请先点击右上角「登录」');
+    } else if (e.status === 402) {
+      addMsg('error', '点数不足，无法使用付费模型。请到个人中心充值：[去充值](/account/)');
+    } else if (e.status === 524) {
+      lastRetry = { apiMessages: apiMessages, mn: mn };
+      addMsg('error', '上游响应超时（推理模型耗时过长，超出上游限制）。可重试，或换用 gpt-5.4-mini / DeepSeek 等更快模型。', null, function() { retryLast(); });
+    } else {
+      addMsg('error', '请求失败：' + e.message);
+    }
+  }).finally(function() {
+    busy = false;
+    sendBtn.disabled = true;
+  });
+}
+
+// 超时后一键重试上一条
+function retryLast() {
+  if (!lastRetry || busy) return;
+  var r = lastRetry;
+  lastRetry = null;
+  busy = true;
+  sendBtn.disabled = true;
+  showTyping(r.mn);
+  runChat(r.apiMessages, r.mn);
+}
+
 function sendMsg(e) {
   if (e) e.preventDefault();
   var text = chatIn.value.trim();
@@ -751,42 +810,7 @@ function sendMsg(e) {
     return;
   }
 
-  var hdrs = { 'Content-Type': 'application/json' };
-  if (getToken()) hdrs['Authorization'] = 'Bearer ' + getToken();
-
-  var apiMessages = messages.slice(-20).map(function (m) { return { role: m.role, content: m.content }; });
-  fetch(API, {
-    method: 'POST',
-    headers: hdrs,
-    body: JSON.stringify({
-      model: mn,
-      messages: apiMessages,
-      max_tokens: 16384,
-      stream: true
-    })
-  }).then(function(r) {
-    if (!r.ok) {
-      return r.json().then(function(d) {
-        var e = new Error(d && d.error ? d.error : ('HTTP ' + r.status));
-        e.status = r.status;
-        e.data = d || {};
-        throw e;
-      });
-    }
-    return handleStream(r, mn);
-  }).catch(function(e) {
-    hideTyping();
-    if (e.status === 401) {
-      addMsg('error', '使用 GPT / Grok 需登录，请先点击右上角「登录」');
-    } else if (e.status === 402) {
-      addMsg('error', '点数不足，无法使用付费模型。请到个人中心充值：<a href="/account/" target="_blank">去充值</a>');
-    } else {
-      addMsg('error', '请求失败：' + e.message);
-    }
-  }).finally(function() {
-    busy = false;
-    sendBtn.disabled = true;
-  });
+  runChat(messages.slice(-20).map(function (m) { return { role: m.role, content: m.content }; }), mn);
 }
 
 function newChat() {
