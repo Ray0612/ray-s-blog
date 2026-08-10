@@ -747,7 +747,7 @@ function runChat(apiMessages, mn) {
   }).catch(function(e) {
     hideTyping();
     if (e.status === 401) {
-      addMsg('error', '使用 GPT / Grok 需登录，请先点击右上角「登录」');
+      addMsg('error', '请先登录后使用，点击右上角「登录」');
     } else if (e.status === 402) {
       addMsg('error', '点数不足，无法使用付费模型。请到个人中心充值：[去充值](/account/)');
     } else if (e.status === 524) {
@@ -802,11 +802,11 @@ function sendMsg(e) {
   var mn = (FAM[mk] ? curModel : null) || MM[mk];
   showTyping(mn);
 
-  // 付费模型（GPT/Grok）需要登录
-  if (FAM[mk] && !getToken()) {
+  // 所有模型都需要登录
+  if (!getToken()) {
     busy = false;
     sendBtn.disabled = false;
-    addMsg('error', 'GPT / Grok 为付费模型，请先点击右上角「登录」后再使用');
+    addMsg('error', '使用前请先点击右上角「登录」');
     return;
   }
 
