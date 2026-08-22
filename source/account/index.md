@@ -138,7 +138,11 @@ aside: false
     setTimeout(function () { t.remove(); }, 2000);
   }
   function adminApi(path, opts) {
-    return fetch(AUTH + path, Object.assign({ headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' } }, opts || {})).then(function (r) { return r.json(); });
+    var controller = new AbortController();
+    var timer = setTimeout(function () { controller.abort(); }, 20000);
+    return fetch(AUTH + path, Object.assign({ headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' }, signal: controller.signal }, opts || {}))
+      .then(function (r) { clearTimeout(timer); return r.json(); })
+      .catch(function (e) { clearTimeout(timer); throw e; });
   }
   function fmtTime(ms) {
     if (!ms) return '-';
@@ -928,11 +932,15 @@ aside: false
       if (!amount || amount <= 0) { msg.textContent = '⚠️ 请输入有效的扣费金额'; return; }
       var btn = this;
       btn.disabled = true;
+      msg.textContent = '正在扣费…';
       adminApi('/admin/deduct', { method: 'POST', body: JSON.stringify({ user_id: uid, reason: reason, amount: amount }) }).then(function (d) {
         if (!d.ok) { btn.disabled = false; msg.textContent = '⚠️ ' + (d.error || '扣费失败'); return; }
         toast('已扣费 ' + amount + ' 点');
         close();
         usersPage(document.getElementById('adminMain'));
+      }).catch(function () {
+        btn.disabled = false;
+        msg.textContent = '⚠️ 请求失败（网络或网关超时），请重试';
       });
     });
   }
