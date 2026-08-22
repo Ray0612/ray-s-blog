@@ -372,7 +372,7 @@ aside: false
         .then(function (d) {
           if (!d.ok) { body.innerHTML = '<div class="acc-hint">' + (d.error || '加载失败') + '</div>'; return; }
           if (!d.logs.length) { body.innerHTML = '<div class="acc-hint">暂无扣费记录</div>'; return; }
-          var items = { email: '邮箱服务', daily: '每日日报', ai: 'AI 聊天', redeem: '兑换' };
+          var items = { chat: 'AI 聊天', ai: 'AI 聊天', email: '邮箱服务', daily: '每日日报', redeem: '兑换', manual: '手动扣费' };
           var html = '<table class="a-table"><tr><th>项目</th><th>描述</th><th>点数</th><th>时间</th></tr>';
           d.logs.forEach(function (l) {
             html += '<tr><td>' + (items[l.item] || l.item) + '</td><td>' + esc(l.detail) + '</td><td style="color:#ef4444">-' + l.points + '</td><td>' + fmtTime(l.created_at) + '</td></tr>';
@@ -887,11 +887,50 @@ aside: false
         });
       } else if (action === 'usage') {
         usagePage(parseInt(uid), btn.getAttribute('data-mail'));
+      } else if (action === 'deduct') {
+        showDeductModal(parseInt(uid), btn.getAttribute('data-mail'));
       } else if (action === 'confirm') {
         adminApi('/admin/recharge-confirm', { method: 'POST', body: JSON.stringify({ order_id: parseInt(btn.getAttribute('data-oid')) }) }).then(function (d) {
           toast(d.ok ? '已确认到账' : d.error); rechargePage(document.getElementById('adminMain'));
         });
       }
+    });
+  }
+
+  // 手动扣费弹窗
+  function showDeductModal(uid, mail) {
+    var ov = document.createElement('div');
+    ov.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:9999;display:flex;align-items:center;justify-content:center';
+    var inp = 'width:100%;padding:9px 12px;border-radius:8px;border:1px solid #d1d5db;font-size:13.5px;outline:none;background:#fff;color:#1f2937;box-sizing:border-box;margin-bottom:10px';
+    ov.innerHTML =
+      '<div style="background:var(--card-bg,#fff);border-radius:12px;padding:20px;width:340px;max-width:92%">' +
+        '<h4 style="margin:0 0 4px">💸 手动扣费</h4>' +
+        '<div style="font-size:12px;color:#6b7280;margin-bottom:12px">用户：' + esc(mail) + '（#' + uid + '）</div>' +
+        '<input id="ddReason" placeholder="扣费事由 *" style="' + inp + '">' +
+        '<input id="ddAmt" type="number" min="0.01" placeholder="扣费金额（点数）*" style="' + inp + '">' +
+        '<div style="display:flex;gap:8px">' +
+          '<button class="a-btn primary" id="ddOk" style="flex:1">确认扣费</button>' +
+          '<button class="a-btn" id="ddCancel" style="flex:1">取消</button>' +
+        '</div>' +
+        '<div class="acc-hint" id="ddMsg"></div>' +
+      '</div>';
+    document.body.appendChild(ov);
+    function close() { ov.remove(); }
+    ov.addEventListener('click', function (e) { if (e.target === ov) close(); });
+    document.getElementById('ddCancel').addEventListener('click', close);
+    document.getElementById('ddOk').addEventListener('click', function () {
+      var reason = document.getElementById('ddReason').value.trim();
+      var amount = parseFloat(document.getElementById('ddAmt').value);
+      var msg = document.getElementById('ddMsg');
+      if (!reason) { msg.textContent = '请填写扣费事由'; return; }
+      if (!amount || amount <= 0) { msg.textContent = '请输入有效金额'; return; }
+      if (!confirm('确认对 ' + mail + ' 扣费 ' + amount + ' 点？')) return;
+      adminApi('/admin/deduct', { method: 'POST', body: JSON.stringify({ user_id: uid, reason: reason, amount: amount }) }).then(function (d) {
+        if (!d.ok) { msg.textContent = d.error || '扣费失败'; return; }
+        toast('已扣费 ' + amount + ' 点');
+        close();
+        usersPage(document.getElementById('adminMain'));
+      });
     });
   }
 
@@ -910,7 +949,8 @@ aside: false
           var st = u.status === 'active' ? '<span class="badge ok">正常</span>' : '<span class="badge bad">封禁</span>';
           html += '<tr><td>' + u.id + '</td><td>' + esc(u.nickname || '') + ' ' + esc(u.email) + '</td><td>' + u.balance + '</td><td>' + st + '</td>' +
             '<td><button class="a-btn ' + (u.status === 'active' ? 'danger' : 'primary') + '" data-action="toggle" data-uid="' + u.id + '" data-status="' + (u.status === 'active' ? 'disabled' : 'active') + '">' + (u.status === 'active' ? '封禁' : '解封') + '</button> ' +
-            '<button class="a-btn" data-action="usage" data-uid="' + u.id + '" data-mail="' + esc(u.email) + '">消费</button></td></tr>';
+            '<button class="a-btn" data-action="usage" data-uid="' + u.id + '" data-mail="' + esc(u.email) + '">消费</button> ' +
+            '<button class="a-btn" data-action="deduct" data-uid="' + u.id + '" data-mail="' + esc(u.email) + '">扣费</button></td></tr>';
         });
         html += '</table>';
         main.querySelector('#auList').innerHTML = html;
