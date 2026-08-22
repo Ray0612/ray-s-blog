@@ -972,7 +972,7 @@ aside: false
     main.querySelector('#auQ').addEventListener('keydown', function (e) { if (e.key === 'Enter') load(this.value.trim()); });
   }
 
-  // 用户消费记录
+  // 用户消费记录（扣费记录 + AI 用量）
   function usagePage(uid, mail) {
     var main = document.getElementById('adminMain');
     main.innerHTML = '<h3>消费记录：' + esc(mail) + '</h3><div id="auUsage" class="a-load">加载中…</div><p><button class="a-btn" id="auBack">← 返回用户列表</button></p>';
@@ -980,12 +980,27 @@ aside: false
     main.querySelector('#auBack').addEventListener('click', function () { usersPage(main); });
     adminApi('/admin/user-usage?user_id=' + uid).then(function (d) {
       if (!d.ok) { main.querySelector('#auUsage').innerHTML = '<div class="a-empty">' + (d.error || '加载失败') + '</div>'; return; }
-      if (!d.logs.length) { main.querySelector('#auUsage').innerHTML = '<div class="a-empty">暂无消费记录</div>'; return; }
-      var html = '<table class="a-table"><tr><th>时间</th><th>模型</th><th>输入/输出</th><th>点数</th></tr>';
-      d.logs.forEach(function (l) {
-        html += '<tr><td>' + fmtTime(l.created_at) + '</td><td>' + esc(l.model || '-') + '</td><td>' + l.input_tokens + ' / ' + l.output_tokens + '</td><td>' + l.points + '</td></tr>';
-      });
-      html += '</table>';
+      var html = '';
+      var items = { chat: 'AI 聊天', ai: 'AI 聊天', email: '邮箱服务', daily: '每日日报', redeem: '兑换', manual: '手动扣费' };
+      var spends = d.spends || [];
+      var logs = d.logs || [];
+      if (spends.length) {
+        html += '<h4 style="margin:12px 0 6px">扣费记录</h4>';
+        html += '<table class="a-table"><tr><th>时间</th><th>项目</th><th>描述</th><th>点数</th></tr>';
+        spends.forEach(function (s) {
+          html += '<tr><td>' + fmtTime(s.created_at) + '</td><td>' + (items[s.item] || s.item) + '</td><td>' + esc(s.detail) + '</td><td>' + s.points + '</td></tr>';
+        });
+        html += '</table>';
+      }
+      if (logs.length) {
+        html += '<h4 style="margin:16px 0 6px">AI 用量</h4>';
+        html += '<table class="a-table"><tr><th>时间</th><th>模型</th><th>输入/输出</th><th>点数</th></tr>';
+        logs.forEach(function (l) {
+          html += '<tr><td>' + fmtTime(l.created_at) + '</td><td>' + esc(l.model || '-') + '</td><td>' + l.input_tokens + ' / ' + l.output_tokens + '</td><td>' + l.points + '</td></tr>';
+        });
+        html += '</table>';
+      }
+      if (!spends.length && !logs.length) html = '<div class="a-empty">暂无消费记录</div>';
       main.querySelector('#auUsage').innerHTML = html;
     });
   }
