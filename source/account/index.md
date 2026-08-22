@@ -901,18 +901,19 @@ aside: false
   function showDeductModal(uid, mail) {
     var ov = document.createElement('div');
     ov.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:9999;display:flex;align-items:center;justify-content:center';
-    var inp = 'width:100%;padding:9px 12px;border-radius:8px;border:1px solid #d1d5db;font-size:13.5px;outline:none;background:#fff;color:#1f2937;box-sizing:border-box;margin-bottom:10px';
+    var inp = 'width:100%;padding:9px 12px;border-radius:8px;border:1px solid #d1d5db;font-size:13.5px;outline:none;background:#fff;color:#1f2937;box-sizing:border-box;margin-top:4px';
+    var lab = 'display:block;font-size:12.5px;color:#374151;font-weight:600;margin-bottom:10px';
     ov.innerHTML =
       '<div style="background:var(--card-bg,#fff);border-radius:12px;padding:20px;width:340px;max-width:92%">' +
         '<h4 style="margin:0 0 4px">💸 手动扣费</h4>' +
-        '<div style="font-size:12px;color:#6b7280;margin-bottom:12px">用户：' + esc(mail) + '（#' + uid + '）</div>' +
-        '<input id="ddReason" placeholder="扣费事由 *" style="' + inp + '">' +
-        '<input id="ddAmt" type="number" min="0.01" placeholder="扣费金额（点数）*" style="' + inp + '">' +
+        '<div style="font-size:12px;color:#6b7280;margin-bottom:14px">用户：' + esc(mail) + '（#' + uid + '）</div>' +
+        '<label style="' + lab + '">扣费事由<textarea id="ddReason" rows="2" placeholder="例如：逾期账号维护费、手动调整" style="' + inp + ';resize:none"></textarea></label>' +
+        '<label style="' + lab + '">扣费金额（点数）<input id="ddAmt" type="number" min="0.01" step="0.01" placeholder="填写要扣的点数" style="' + inp + '"></label>' +
         '<div style="display:flex;gap:8px">' +
           '<button class="a-btn primary" id="ddOk" style="flex:1">确认扣费</button>' +
           '<button class="a-btn" id="ddCancel" style="flex:1">取消</button>' +
         '</div>' +
-        '<div class="acc-hint" id="ddMsg"></div>' +
+        '<div id="ddMsg" style="margin-top:8px;font-size:12.5px;color:#dc2626;min-height:18px"></div>' +
       '</div>';
     document.body.appendChild(ov);
     function close() { ov.remove(); }
@@ -922,11 +923,13 @@ aside: false
       var reason = document.getElementById('ddReason').value.trim();
       var amount = parseFloat(document.getElementById('ddAmt').value);
       var msg = document.getElementById('ddMsg');
-      if (!reason) { msg.textContent = '请填写扣费事由'; return; }
-      if (!amount || amount <= 0) { msg.textContent = '请输入有效金额'; return; }
-      if (!confirm('确认对 ' + mail + ' 扣费 ' + amount + ' 点？')) return;
+      msg.textContent = '';
+      if (!reason) { msg.textContent = '⚠️ 请填写扣费事由'; return; }
+      if (!amount || amount <= 0) { msg.textContent = '⚠️ 请输入有效的扣费金额'; return; }
+      var btn = this;
+      btn.disabled = true;
       adminApi('/admin/deduct', { method: 'POST', body: JSON.stringify({ user_id: uid, reason: reason, amount: amount }) }).then(function (d) {
-        if (!d.ok) { msg.textContent = d.error || '扣费失败'; return; }
+        if (!d.ok) { btn.disabled = false; msg.textContent = '⚠️ ' + (d.error || '扣费失败'); return; }
         toast('已扣费 ' + amount + ' 点');
         close();
         usersPage(document.getElementById('adminMain'));
