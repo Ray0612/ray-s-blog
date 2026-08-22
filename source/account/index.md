@@ -565,24 +565,51 @@ aside: false
   }
 
   function renderWechat(area) {
-    area.innerHTML =
-      '<div class="acc-wx-tip">⚠️ 微信支付的充值到账有延迟（需要管理员人工确认），推荐使用支付宝支付（可实时到账）。</div>' +
-      '<div class="acc-qr"><img src="/img/wechat-pay.jpg" alt="微信收款码"><p>请用微信扫码，输入你实际支付的金额付款</p></div>' +
-      '<div class="a-form" style="max-width:300px"><input id="accWxAmt" type="number" min="1" placeholder="实际付款金额（元）"><button class="a-btn primary" id="accWxDone">我已支付完成</button></div>' +
-      '<div class="acc-hint" id="accWxMsg"></div>';
-    document.getElementById('accWxDone').addEventListener('click', function () {
-      var v = parseFloat(document.getElementById('accWxAmt').value);
-      var msg = document.getElementById('accWxMsg');
-      if (!v || v <= 0) { msg.textContent = '请输入实际付款金额'; return; }
-      msg.textContent = '正在提交…';
-      fetch(AUTH + '/pay/wechat/create', { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token }, body: JSON.stringify({ amount: v }) })
-        .then(function (r) { return r.json(); })
-        .then(function (d) {
-          if (!d.ok) { msg.textContent = d.error || '提交失败'; return; }
-          msg.textContent = '✅ 已提交，请等待管理员确认到账，确认后余额自动增加。';
-        })
-        .catch(function () { msg.textContent = '网络错误'; });
-    });
+    var planWrap = document.getElementById('accPlanWrap');
+    if (planWrap) {
+      planWrap.innerHTML =
+        '<div class="acc-plan">' + [1, 3, 5, 10, 30, 50, 100].map(function (a) { return '<button data-amt="' + a + '">' + a + ' 元</button>'; }).join('') + '</div>' +
+        '<div class="a-form" style="max-width:300px"><input id="accWxCustomAmt" type="number" min="1" placeholder="自定义金额（元）"><button class="a-btn primary" id="accWxCustomBtn">自定义充值</button></div>';
+      planWrap.querySelectorAll('.acc-plan button').forEach(function (b) {
+        b.addEventListener('click', function () {
+          planWrap.querySelectorAll('.acc-plan button').forEach(function (x) { x.classList.remove('active'); });
+          b.classList.add('active');
+          createWechatOrder(parseFloat(b.getAttribute('data-amt')), area);
+        });
+      });
+      planWrap.querySelector('#accWxCustomBtn').addEventListener('click', function () {
+        var v = parseFloat(document.getElementById('accWxCustomAmt').value);
+        if (!v || v <= 0) { toast('请输入正确的金额'); return; }
+        createWechatOrder(v, area);
+      });
+    }
+    area.innerHTML = '<div class="acc-hint">选择档位，或输入自定义金额充值</div>';
+  }
+
+  function createWechatOrder(amount, area) {
+    area.innerHTML = '<div class="a-load">正在生成支付二维码…</div>';
+    fetch(AUTH + '/pay/wechat/create', { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token }, body: JSON.stringify({ amount: amount }) })
+      .then(function (r) { return r.json(); })
+      .then(function (d) {
+        if (!d.ok) { area.innerHTML = '<div class="acc-hint">' + (d.error || '下单失败') + '</div>'; return; }
+        area.innerHTML = '<div class="acc-qr"><img src="' + esc(d.qrcode) + '" alt="支付二维码"><p>请用微信扫码支付 ' + amount + ' 元</p><div class="a-load">等待支付…</div></div>';
+        var iv = setInterval(function () {
+          fetch(AUTH + '/pay/order-status?order_id=' + d.order_id, { headers: { 'Authorization': 'Bearer ' + token } })
+            .then(function (r) { return r.json(); })
+            .then(function (st) {
+              if (st.ok && st.status === 'confirmed') {
+                clearInterval(iv);
+                area.innerHTML = '<div class="acc-qr"><p style="color:#059669;font-weight:600">✅ 充值成功，已到账 ' + st.points + ' 点</p></div>';
+                if (window.__rayRefreshAuth) window.__rayRefreshAuth();
+                refreshBalance();
+              } else if (st.ok && st.status === 'failed') {
+                clearInterval(iv);
+                area.innerHTML = '<div class="acc-hint">订单已失效，请重试</div>';
+              }
+            });
+        }, 3000);
+      })
+      .catch(function () { area.innerHTML = '<div class="acc-hint">网络错误</div>'; });
   }
 
   function createAlipayOrder(amount, area) {
