@@ -425,15 +425,16 @@ aside: false
     var wrap = document.createElement('div');
     wrap.id = 'invFormWrap';
     wrap.style.cssText = 'border:1px solid #d1d5db;border-radius:8px;padding:16px;margin-bottom:16px;background:var(--card-bg,#fff)';
+    var inp = 'width:100%;padding:9px 12px;border-radius:8px;border:1px solid #d1d5db;font-size:13.5px;outline:none;background:#fff;color:#1f2937;box-sizing:border-box;margin-bottom:8px';
     wrap.innerHTML =
       '<h4 style="margin:0 0 10px">🧾 开发票（订单 XH' + oid + ' · ' + amount + ' 元）</h4>' +
-      '<div class="a-form" style="max-width:340px">' +
-        '<select id="invType" style="padding:7px 10px;border:1px solid #d1d5db;border-radius:6px;font-size:13px;width:100%;margin-bottom:8px">' +
+      '<div style="max-width:340px">' +
+        '<select id="invType" style="' + inp + '">' +
           '<option value="personal">个人抬头</option><option value="enterprise">企业抬头</option>' +
         '</select>' +
-        '<input id="invTitle" placeholder="发票抬头 *" style="width:100%;margin-bottom:8px">' +
-        '<input id="invTaxNo" placeholder="企业税号（企业抬头必填）" style="width:100%;margin-bottom:8px;display:none">' +
-        '<input id="invEmail" placeholder="接收发票的邮箱 *" style="width:100%;margin-bottom:8px">' +
+        '<input id="invTitle" placeholder="发票抬头 *" style="' + inp + '">' +
+        '<input id="invTaxNo" placeholder="企业税号（企业抬头必填）" style="' + inp + 'display:none">' +
+        '<input id="invEmail" placeholder="接收发票的邮箱 *" style="' + inp + '">' +
         '<button class="a-btn primary" id="invSubmit" style="width:100%">提交开票申请</button>' +
       '</div>' +
       '<div class="acc-hint" id="invMsg"></div>' +
