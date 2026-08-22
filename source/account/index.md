@@ -403,15 +403,65 @@ aside: false
           d.orders.forEach(function (o) {
             var method = o.method === 'alipay' ? '支付宝' : o.method === 'wechat' ? '微信' : o.method === 'manual' ? '补录' : o.method;
             var status = o.status === 'confirmed' ? '<span class="badge ok">已到账</span>' : o.status === 'pending' ? '<span class="badge bad">待确认</span>' : '<span class="badge bad">已失效</span>';
-            html += '<tr><td style="font-family:monospace;font-size:12px">XH' + o.id + '</td><td>¥' + o.amount + '</td><td>' + o.points + '</td><td>' + method + '</td><td>' + status + '</td><td>' + fmtTime(o.confirmed_at || o.created_at) + '</td></tr>';
+            var invLink = o.status === 'confirmed' ? ' <a href="javascript:void(0)" class="inv-link" style="color:#425aef;font-size:12px" data-oid="' + o.id + '" data-amt="' + o.amount + '">去开发票</a>' : '';
+            html += '<tr><td style="font-family:monospace;font-size:12px">XH' + o.id + invLink + '</td><td>¥' + o.amount + '</td><td>' + o.points + '</td><td>' + method + '</td><td>' + status + '</td><td>' + fmtTime(o.confirmed_at || o.created_at) + '</td></tr>';
           });
           html += '</table>';
         } else {
           html += '<div class="acc-hint">暂无充值记录</div>';
         }
         body.innerHTML = html;
+        body.querySelectorAll('.inv-link').forEach(function (a) {
+          a.addEventListener('click', function () { showInvoiceForm(body, parseInt(a.getAttribute('data-oid')), parseFloat(a.getAttribute('data-amt'))); });
+        });
       })
       .catch(function () { body.innerHTML = '<div class="acc-hint">网络错误</div>'; });
+  }
+
+  // 发票申请表单
+  function showInvoiceForm(body, oid, amount) {
+    var old = body.querySelector('#invFormWrap');
+    if (old) old.remove();
+    var wrap = document.createElement('div');
+    wrap.id = 'invFormWrap';
+    wrap.style.cssText = 'border:1px solid #d1d5db;border-radius:8px;padding:16px;margin-bottom:16px;background:var(--card-bg,#fff)';
+    wrap.innerHTML =
+      '<h4 style="margin:0 0 10px">🧾 开发票（订单 XH' + oid + ' · ' + amount + ' 元）</h4>' +
+      '<div class="a-form" style="max-width:340px">' +
+        '<select id="invType" style="padding:7px 10px;border:1px solid #d1d5db;border-radius:6px;font-size:13px;width:100%;margin-bottom:8px">' +
+          '<option value="personal">个人抬头</option><option value="enterprise">企业抬头</option>' +
+        '</select>' +
+        '<input id="invTitle" placeholder="发票抬头 *" style="width:100%;margin-bottom:8px">' +
+        '<input id="invTaxNo" placeholder="企业税号（企业抬头必填）" style="width:100%;margin-bottom:8px;display:none">' +
+        '<input id="invEmail" placeholder="接收发票的邮箱 *" style="width:100%;margin-bottom:8px">' +
+        '<button class="a-btn primary" id="invSubmit" style="width:100%">提交开票申请</button>' +
+      '</div>' +
+      '<div class="acc-hint" id="invMsg"></div>' +
+      '<button class="a-btn" id="invClose" style="margin-top:8px">关闭</button>';
+    body.insertBefore(wrap, body.firstChild);
+    document.getElementById('invType').addEventListener('change', function () {
+      document.getElementById('invTaxNo').style.display = this.value === 'enterprise' ? '' : 'none';
+    });
+    document.getElementById('invClose').addEventListener('click', function () { wrap.remove(); });
+    document.getElementById('invSubmit').addEventListener('click', function () {
+      var msg = document.getElementById('invMsg');
+      var title = document.getElementById('invTitle').value.trim();
+      var taxNo = document.getElementById('invTaxNo').value.trim();
+      var email = document.getElementById('invEmail').value.trim();
+      var type = document.getElementById('invType').value;
+      if (!title) { msg.textContent = '请填写发票抬头'; return; }
+      if (type === 'enterprise' && !taxNo) { msg.textContent = '企业抬头需要填写税号'; return; }
+      if (!email) { msg.textContent = '请填写接收发票的邮箱'; return; }
+      msg.textContent = '正在提交…';
+      fetch(AUTH + '/auth/invoice', { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token }, body: JSON.stringify({ order_id: oid, inv_type: type, title: title, tax_no: taxNo, invoice_email: email }) })
+        .then(function (r) { return r.json(); })
+        .then(function (d) {
+          if (!d.ok) { msg.textContent = d.error || '提交失败'; return; }
+          msg.textContent = '✅ 开票申请已提交，发票开好后会发送到你填写的邮箱。';
+          document.getElementById('invSubmit').disabled = true;
+        })
+        .catch(function () { msg.textContent = '网络错误'; });
+    });
   }
 
   // ===== 我的服务 =====
@@ -657,6 +707,7 @@ aside: false
           '<div class="admin-menu" data-page="recharge">💰 充值补录</div>' +
           '<div class="admin-menu" data-page="revenue">💰 总营收统计</div>' +
           '<div class="admin-menu" data-page="redeem">🎟️ 兑换码管理</div>' +
+          '<div class="admin-menu" data-page="invoice">🧾 发票处理</div>' +
           '<div class="admin-menu" data-page="me">🙋 个人中心</div>' +
           '<div class="admin-back"><a href="/">← 返回博客</a></div>' +
         '</div>' +
@@ -697,6 +748,7 @@ aside: false
     else if (page === 'revenue') revenuePage(main);
     else if (page === 'recharge') rechargePage(main);
     else if (page === 'redeem') redeemPage(main);
+    else if (page === 'invoice') invoicePage(main);
     else if (page === 'me') render(curUser, main);
   }
 
@@ -966,6 +1018,78 @@ aside: false
       });
     };
     loadRedeem();
+  }
+
+  // 发票处理
+  function invoicePage(main) {
+    main.innerHTML = '<h3>🧾 发票处理</h3><div id="invList" class="a-load">加载中…</div>';
+    var load = function () {
+      adminApi('/admin/invoices').then(function (d) {
+        if (!d.ok) { main.querySelector('#invList').innerHTML = '<div class="a-empty">' + (d.error || '加载失败') + '</div>'; return; }
+        var list = d.invoices || [];
+        if (!list.length) { main.querySelector('#invList').innerHTML = '<div class="a-empty">暂无发票申请</div>'; return; }
+        var html = '';
+        list.forEach(function (inv) {
+          var st = inv.status === 'pending' ? '<span class="badge ok">待处理</span>' : '<span class="badge bad">已发送</span>';
+          var typeName = inv.inv_type === 'enterprise' ? '企业' : '个人';
+          html += '<div style="border:1px solid #e5e7eb;border-radius:8px;padding:12px;margin-bottom:10px">' +
+            '<div><b>#' + inv.id + '</b> ' + esc(inv.title) + ' · ' + inv.amount + ' 元 · ' + st + '</div>' +
+            '<div style="font-size:12px;color:#6b7280;margin:4px 0">用户：' + esc(inv.email) + '（#' + inv.user_id + '）｜订单：XH' + inv.order_id + '｜类型：' + typeName + '｜税号：' + esc(inv.tax_no || '无') + '｜接收邮箱：' + esc(inv.invoice_email) + '｜申请时间：' + fmtTime(inv.created_at) + (inv.sent_at ? '｜发送时间：' + fmtTime(inv.sent_at) : '') + '</div>' +
+            (inv.status === 'pending' ?
+              '<div style="margin-top:8px">' +
+                '<input id="invSubj_' + inv.id + '" placeholder="邮件主题" value="你的发票已开具（' + inv.amount + ' 元）" style="width:100%;margin-bottom:6px;padding:7px 10px;border:1px solid #d1d5db;border-radius:6px;font-size:13px;box-sizing:border-box">' +
+                '<textarea id="invContent_' + inv.id + '" rows="2" placeholder="邮件内容（可留空）" style="width:100%;margin-bottom:6px;padding:7px 10px;border:1px solid #d1d5db;border-radius:6px;font-size:13px;box-sizing:border-box"></textarea>' +
+                '<div style="display:flex;gap:8px;align-items:center;margin-bottom:6px;font-size:12px;color:#6b7280">' +
+                  '<input type="file" id="invFile_' + inv.id + '" accept="image/*,.pdf" style="font-size:12px">' +
+                  '<span id="invFileName_' + inv.id + '"></span>' +
+                '</div>' +
+                '<button class="a-btn primary" data-send="' + inv.id + '">📨 发送发票</button>' +
+              '</div>' : '') +
+          '</div>';
+        });
+        main.querySelector('#invList').innerHTML = html;
+        list.forEach(function (inv) {
+          var fi = document.getElementById('invFile_' + inv.id);
+          if (fi) fi.addEventListener('change', function () {
+            var f = this.files[0];
+            if (f) document.getElementById('invFileName_' + inv.id).textContent = f.name + ' (' + Math.round(f.size / 1024) + 'KB)';
+          });
+        });
+        main.querySelectorAll('[data-send]').forEach(function (btn) {
+          btn.addEventListener('click', function () {
+            var id = parseInt(btn.getAttribute('data-send'));
+            var fileInput = document.getElementById('invFile_' + id);
+            var doSend = function (attachment, filename, mime) {
+              btn.disabled = true;
+              adminApi('/admin/invoice-send', { method: 'POST', body: JSON.stringify({
+                invoice_id: id,
+                subject: document.getElementById('invSubj_' + id).value,
+                content: document.getElementById('invContent_' + id).value,
+                attachment: attachment || '',
+                filename: filename || '',
+                mime: mime || ''
+              }) }).then(function (d) {
+                if (!d.ok) { toast(d.error || '发送失败'); btn.disabled = false; return; }
+                toast('发票已发送');
+                load();
+              });
+            };
+            if (fileInput && fileInput.files && fileInput.files[0]) {
+              var f = fileInput.files[0];
+              var reader = new FileReader();
+              reader.onload = function (ev) {
+                var base64 = (ev.target.result || '').split(',')[1] || '';
+                doSend(base64, f.name, f.type || 'application/octet-stream');
+              };
+              reader.readAsDataURL(f);
+            } else {
+              doSend('', '', '');
+            }
+          });
+        });
+      });
+    };
+    load();
   }
 
   // ===== 启动 =====
