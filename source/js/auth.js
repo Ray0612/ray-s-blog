@@ -3,12 +3,12 @@
   if (window.__rayAuthLoaded) return;
   window.__rayAuthLoaded = true;
 
-  var SITEKEY = '0x4AAAAAAEGDC89_lYzhJoB4';
+  // var SITEKEY = '0x4AAAAAAEGDC89_lYzhJoB4';  // 暂时关闭
   var AUTH = 'https://ai-gateway.ray2.asia';
   var token = localStorage.getItem('ray_auth_token') || '';
   var user = null;
   var widgets = {};
-  var cfResp = { login: '', reg: '' };
+  var cfResp = { login: 'bypass', reg: 'bypass', forgot: 'bypass' };  // 暂时跳过验证
 
   // ===== 注入 CSS =====
   var css = document.createElement('style');
@@ -112,57 +112,10 @@
   tipEl.className = 'ray-bal-tip2';
   document.body.appendChild(tipEl);
 
-  // ===== Turnstile =====
-  function ensureTurnstile(cb) {
-    if (window.turnstile) { renderCf(); cb(); return; }
-    window.__rayCfLoaded = function () { renderCf(); cb(); };
-    var s = document.createElement('script');
-    s.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?onload=__rayCfLoaded&render=explicit';
-    s.async = true;
-    document.head.appendChild(s);
-  }
-  function renderCf() {
-    if (!window.turnstile) return;
-    var l = document.getElementById('rayCfLogin');
-    var r = document.getElementById('rayCfReg');
-    var f = document.getElementById('rayCfForgot');
-    if (l && !l.dataset.rendered) {
-      l.dataset.rendered = '1';
-      try {
-        widgets.login = turnstile.render(l, {
-          sitekey: SITEKEY,
-          callback: function (t) { cfResp.login = t; },
-          'error-callback': function () { cfResp.login = ''; }
-        });
-      } catch (e) {}
-    }
-    if (r && !r.dataset.rendered) {
-      r.dataset.rendered = '1';
-      try {
-        widgets.reg = turnstile.render(r, {
-          sitekey: SITEKEY,
-          callback: function (t) { cfResp.reg = t; },
-          'error-callback': function () { cfResp.reg = ''; }
-        });
-      } catch (e) {}
-    }
-    if (f && !f.dataset.rendered) {
-      f.dataset.rendered = '1';
-      try {
-        widgets.forgot = turnstile.render(f, {
-          sitekey: SITEKEY,
-          callback: function (t) { cfResp.forgot = t; },
-          'error-callback': function () { cfResp.forgot = ''; }
-        });
-      } catch (e) {}
-    }
-  }
-  function resetCf(which) {
-    cfResp[which] = '';
-    if (window.turnstile && widgets[which] != null) {
-      try { turnstile.reset(widgets[which]); } catch (e) {}
-    }
-  }
+  // ===== Turnstile（暂时关闭）=====
+  function ensureTurnstile(cb) { cb(); }
+  function renderCf() {}
+  function resetCf(which) { cfResp[which] = 'bypass'; }
 
   // ===== 工具 =====
   function escHtml(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
