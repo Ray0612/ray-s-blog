@@ -41,12 +41,12 @@ comments: false
   <h2>🎯 按使用场景推荐</h2>
   <table class="mg-table">
     <tr><th>使用场景</th><th>首选模型</th><th>备选模型</th><th>参考成本/次</th></tr>
-    <tr><td>日常聊天、快速问答</td><td>Grok 4.1 Fast</td><td>GPT-5.4 mini、GPT-5.6 Luna</td><td>0.007 / 0.04 / 0.01 点</td></tr>
-    <tr><td>学习作业、知识答疑</td><td>GPT-5.4</td><td>GPT-5.6 Terra、Grok 4.1 Fast</td><td>0.12 / 0.10 / 0.007 点</td></tr>
-    <tr><td>数学建模、复杂推理</td><td>GPT-5.6 Sol</td><td>Grok 4.1 Fast Reasoning、GPT-5.5</td><td>0.25 / 0.007 / 0.25 点</td></tr>
-    <tr><td>学术论文写作</td><td>GPT-5.6 Sol / GPT-5.5</td><td>Grok-4</td><td>0.25 / 0.13 点</td></tr>
-    <tr><td>代码编写与调试</td><td>GPT-5.6 Sol</td><td>Grok 4.1 Fast、GPT-5.6 Terra</td><td>0.25 / 0.007 / 0.10 点</td></tr>
-    <tr><td>长文本 / 大文档分析</td><td>GPT-5.6 Sol / Grok-4</td><td>GPT-5.5</td><td>0.25 / 0.13 点</td></tr>
+    <tr><td>日常聊天、快速问答</td><td>Grok 4.1 Fast</td><td>GPT-5.6 Luna、GPT-5.4 mini</td><td>0.007 / 0.01 / 0.04 点</td></tr>
+    <tr><td>学习作业、知识答疑</td><td>GPT-5.6 Terra</td><td>GPT-5.4、Grok 4.1 Fast</td><td>0.10 / 0.12 / 0.007 点</td></tr>
+    <tr><td>数学建模、复杂推理</td><td>GPT-6 Astra</td><td>GPT-5.6 Sol、Grok 4.1 Fast Reasoning</td><td>0.49 / 0.25 / 0.007 点</td></tr>
+    <tr><td>学术论文写作</td><td>GPT-6 Astra</td><td>GPT-5.6 Sol</td><td>0.49 / 0.25 点</td></tr>
+    <tr><td>代码编写与调试</td><td>GPT-6 Astra</td><td>GPT-5.6 Sol、Grok 4.1 Fast</td><td>0.49 / 0.25 / 0.007 点</td></tr>
+    <tr><td>长文本 / 大文档分析</td><td>GPT-6 Astra</td><td>GPT-5.6 Sol、Grok-4</td><td>0.49 / 0.25 / 0.13 点</td></tr>
     <tr><td>轻量跑量、简单任务</td><td>GPT-5.6 Luna / GPT-5.4 nano</td><td>Grok 4.1 Fast 非推理</td><td>0.01 / 0.007 点</td></tr>
   </table>
 </div>
@@ -59,13 +59,16 @@ comments: false
   <p><span class="mg-hl">GPT-5.4、GPT-5.6 Terra、Grok-4</span>。质量与价格平衡，作业和一般任务推荐。</p>
   <h3>🚀 旗舰方案（每次约 0.25 点）</h3>
   <p><span class="mg-hl">GPT-5.6 Sol、GPT-5.5</span>。最强推理与写作，适合论文、复杂建模、高难度代码。</p>
+  <h3>👑 顶级方案（每次约 0.49 点）</h3>
+  <p><span class="mg-hl">GPT-6 Astra</span>。最新最强模型，105 万 token 上下文，适合最复杂的任务和超长文档。</p>
 </div>
 
 <div class="mg-card">
   <h2>📋 付费模型特点速览</h2>
   <h3>GPT 系列</h3>
   <ul>
-    <li><b>GPT-5.6 Sol</b>：旗舰，推理 / 写作 / 代码最强，价格最高（0.049/0.294）</li>
+    <li><b>GPT-6 Astra</b>：最新旗舰，105 万上下文，最强推理/写作/代码（0.098/0.490）</li>
+    <li><b>GPT-5.6 Sol</b>：上一代旗舰，推理 / 写作 / 代码最强（0.049/0.294）</li>
     <li><b>GPT-5.6 Terra</b>：均衡全能，性价比高（0.020/0.118）</li>
     <li><b>GPT-5.6 Luna</b>：轻量快速，简单任务够用（0.002/0.012）</li>
     <li><b>GPT-5.5</b>：与 Sol 同级旗舰，长文本强（0.049/0.294）</li>

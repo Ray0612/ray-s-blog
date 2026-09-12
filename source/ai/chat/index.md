@@ -282,24 +282,26 @@ comments: false
 
 <script>
 var API = 'https://ai-gateway.ray2.asia/v1/chat/completions';
-var MM = {gpt:'gpt-5.4-mini', deepseek:'deepseek-v4-pro', grok:'grok-4-1-fast-reasoning', minimax:'minimax-m4', glm:'glm-5.1', qwen:'qwen-3.7'};
+var MM = {gpt:'gpt-6-astra', deepseek:'deepseek-v4-pro', grok:'grok-4-1-fast-reasoning', minimax:'minimax-m4', glm:'glm-5.1', qwen:'qwen-3.7'};
 var NAMES = {
+  'gpt-6-astra':'GPT-6 Astra',
   'gpt-5.6-sol':'GPT-5.6 Sol', 'gpt-5.6-terra':'GPT-5.6 Terra', 'gpt-5.6-luna':'GPT-5.6 Luna',
   'gpt-5.5':'GPT-5.5', 'gpt-5.4':'GPT-5.4', 'gpt-5.4-mini':'GPT-5.4 mini', 'gpt-5.4-nano':'GPT-5.4 nano',
   'deepseek-v4-pro':'DeepSeek V4 Pro', 'minimax-m4':'MiniMax M4', 'glm-5.1':'GLM 5.1', 'qwen-3.7':'Qwen 3.7',
   'grok-4-1-fast-reasoning':'Grok 4.1 Fast Reasoning', 'grok-4-1-fast':'Grok 4.1 Fast', 'grok-4-1-fast-non-reasoning':'Grok 4.1 Fast 非推理', 'grok-4-0709':'Grok-4'
 };
-// 各型号官方 API 成本（美元 / 1M token）
+// 各型号官方 API 成本（美元 / 1M token）— https://openai.com/api/pricing/
 var BASE = {
+  'gpt-6-astra': [10, 50],
   'gpt-5.6-sol': [5, 30], 'gpt-5.6-terra': [2, 12], 'gpt-5.6-luna': [0.2, 1.2],
   'gpt-5.5': [5, 30], 'gpt-5.4': [2.5, 15], 'gpt-5.4-mini': [0.75, 4.5], 'gpt-5.4-nano': [0.2, 1.25],
   'grok-4-1-fast-reasoning': [0.2, 0.5], 'grok-4-1-fast': [0.2, 0.5], 'grok-4-1-fast-non-reasoning': [0.2, 0.5], 'grok-4-0709': [3, 15]
 };
 var FAM = {
-  gpt: ['gpt-5.6-sol','gpt-5.6-terra','gpt-5.6-luna','gpt-5.5','gpt-5.4','gpt-5.4-mini','gpt-5.4-nano'],
+  gpt: ['gpt-6-astra','gpt-5.6-sol','gpt-5.6-terra','gpt-5.6-luna','gpt-5.5','gpt-5.4','gpt-5.4-mini','gpt-5.4-nano'],
   grok: ['grok-4-1-fast-reasoning','grok-4-1-fast','grok-4-1-fast-non-reasoning','grok-4-0709']
 };
-var curModel = 'gpt-5.4-mini';
+var curModel = 'gpt-6-astra';
 function updateSubSelect() {
   var mk = mSel.value;
   var sub = document.getElementById('mSel2');

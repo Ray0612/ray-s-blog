@@ -39,7 +39,7 @@ comments: false
   <h3>哪些模型收费？</h3>
   <table class="g-table">
     <tr><th>模型</th><th>是否收费</th><th>说明</th></tr>
-    <tr><td>GPT 系列（Sol / Terra / Luna / 5.5 / 5.4 / mini / nano）</td><td class="g-hl">按 token 扣费</td><td>按实际消耗的 token 数量实时扣除，用多少扣多少</td></tr>
+    <tr><td>GPT 系列（Astra / Sol / Terra / Luna / 5.5 / 5.4 / mini / nano）</td><td class="g-hl">按 token 扣费</td><td>按实际消耗的 token 数量实时扣除，用多少扣多少</td></tr>
     <tr><td>Grok 系列</td><td class="g-hl">按 token 扣费</td><td>同上，实时扣费</td></tr>
     <tr><td>DeepSeek / MiniMax / GLM / Qwen</td><td class="g-free">完全免费</td><td>不消耗点数</td></tr>
   </table>
