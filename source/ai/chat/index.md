@@ -282,7 +282,7 @@ comments: false
 
 <script>
 var API = 'https://ai-gateway.ray2.asia/v1/chat/completions';
-var MM = {gpt:'gpt-6-astra', deepseek:'deepseek-v4-pro', grok:'grok-4-1-fast-reasoning', minimax:'minimax-m4', glm:'glm-5.1', qwen:'qwen-3.7'};
+var MM = {gpt:'gpt-5.4-mini', deepseek:'deepseek-v4-pro', grok:'grok-4-1-fast-reasoning', minimax:'minimax-m4', glm:'glm-5.1', qwen:'qwen-3.7'};
 var NAMES = {
   'gpt-6-astra':'GPT-6 Astra',
   'gpt-5.6-sol':'GPT-5.6 Sol', 'gpt-5.6-terra':'GPT-5.6 Terra', 'gpt-5.6-luna':'GPT-5.6 Luna',
@@ -301,7 +301,7 @@ var FAM = {
   gpt: ['gpt-6-astra','gpt-5.6-sol','gpt-5.6-terra','gpt-5.6-luna','gpt-5.5','gpt-5.4','gpt-5.4-mini','gpt-5.4-nano'],
   grok: ['grok-4-1-fast-reasoning','grok-4-1-fast','grok-4-1-fast-non-reasoning','grok-4-0709']
 };
-var curModel = 'gpt-6-astra';
+var curModel = 'gpt-5.4-mini';
 function updateSubSelect() {
   var mk = mSel.value;
   var sub = document.getElementById('mSel2');
