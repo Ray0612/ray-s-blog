@@ -480,6 +480,7 @@ aside: false
         (d.services || []).forEach(function (s) { map[s.service_type] = s; });
         var defs = [
           { type: 'email', name: '@ray2.asia 邮箱申请', desc: '获得 xxx@ray2.asia 邮箱，收信转发到你的邮箱', price: '12 点 / 年' },
+          { type: 'tunnel', name: '域名隧道服务', desc: '通过 Cloudflare Tunnel 将你的服务安全暴露到公网，无需开放端口', price: '14 点 / 年' },
           { type: 'digital', name: 'AI 数字人聊天', desc: '与我的数字分身对话', price: '免费' },
           { type: 'daily', name: '每日日报订阅', desc: '每天收到 AI 汇总的新闻日报', price: '2 点/月 · 20 点/年' },
           { type: 'ai', name: 'AI 网关', desc: 'AI 聊天、多模型对话', price: '免费' }
@@ -550,6 +551,7 @@ aside: false
         var type = btn.getAttribute('data-svc');
         var act = btn.getAttribute('data-act');
         if (type === 'email') location.href = '/account/service.html?type=email';
+        else if (type === 'tunnel') location.href = '/account/service.html?type=tunnel';
         else if (type === 'daily') location.href = '/account/service.html?type=daily';
         else if (act === 'pause') {
           var t = btn.getAttribute('data-type');
@@ -873,6 +875,8 @@ aside: false
           '<span>订阅中：<b>' + d.daily.active + '</b></span><span>今日已发送：<b>' + d.daily.sent_today + '</b></span><span>今日待发送：<b>' + d.daily.pending + '</b></span><span>7 天内到期：<b>' + d.daily.expiring + '</b></span></div></div>' +
         '<div class="mon-card"><div class="mon-name">🌐 AI 网关</div><div class="mon-items">' +
           '<span>注册用户：<b>' + d.gateway.users + '</b></span></div></div>' +
+        '<div class="mon-card"><div class="mon-name">🔗 域名隧道</div><div class="mon-items">' +
+          '<span>已开通：<b>' + d.tunnel.active + '</b></span><span>待确认：<b>' + d.tunnel.pending + '</b></span><span>7 天内到期：<b>' + d.tunnel.expiring + '</b></span></div></div>' +
         '</div>';
       main.innerHTML = html;
     }).catch(function () { main.innerHTML = '<h3>📊 服务监控</h3><div class="a-empty">网络错误</div>'; });

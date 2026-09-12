@@ -66,7 +66,9 @@ aside: false
     { id: 'finance', name: '金融经济', desc: '财经、市场与经济要闻' }
   ];
   if (!token) { box.innerHTML = '<div class="s-login">请先 <a href="/account/">登录</a> 后开通服务</div>'; return; }
-  if (type === 'email') renderEmail(); else renderDaily();
+  if (type === 'email') renderEmail();
+  else if (type === 'tunnel') renderTunnel();
+  else renderDaily();
 
   function renderEmail() {
     box.innerHTML = '' +
@@ -95,6 +97,47 @@ aside: false
       if (!p) { msg.textContent = '请输入前缀'; return; }
       msg.textContent = '正在提交…';
       fetch(AUTH + '/auth/service-order', { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token }, body: JSON.stringify({ service_type: 'email', email_prefix: p }) })
+        .then(function (r) { return r.json(); })
+        .then(function (d) { if (!d.ok) { msg.textContent = d.error; return; } msg.textContent = '✅ ' + d.msg; setTimeout(function () { location.href = '/account/'; }, 1500); })
+        .catch(function () { msg.textContent = '网络错误'; });
+    });
+  }
+
+  function renderTunnel() {
+    box.innerHTML = '' +
+      '<div class="s-card"><h2>开通域名隧道服务</h2>' +
+      '<h3>什么是域名隧道？</h3>' +
+      '<ul>' +
+        '<li><b>无需开放端口</b>：通过 Cloudflare Tunnel 将你的本地服务安全暴露到公网，VPS 无需开放任何入站端口。</li>' +
+        '<li><b>自带 HTTPS</b>：自动获得 SSL 证书，浏览器显示安全锁。</li>' +
+        '<li><b>DDoS 防护</b>：流量经过 Cloudflare 清洗，天然抵御攻击。</li>' +
+        '<li><b>隐藏源站</b>：外部只看到 Cloudflare 节点，无法追溯到你的真实 IP。</li>' +
+      '</ul>' +
+      '<h3>适用场景</h3>' +
+      '<ul>' +
+        '<li>将本地开发的服务（如博客、API、Web 应用）临时暴露给他人访问</li>' +
+        '<li>远程访问家中 NAS、树莓派等设备</li>' +
+        '<li>为自建服务提供稳定的公网入口</li>' +
+      '</ul>' +
+      '<div class="s-form"><label>你想要的子域名（将分配 xxx.ray2.asia）</label>' +
+      '<div class="s-row"><input id="sTunnelSub" placeholder="例如 go"><span>.ray2.asia</span></div>' +
+      '<label>目标地址（你本地服务的地址）</label>' +
+      '<div class="s-row"><input id="sTunnelTarget" placeholder="例如 localhost:8080 或 http://127.0.0.1:3000"></div>' +
+      '<label>备注说明（可选）</label>' +
+      '<div class="s-row"><input id="sTunnelNote" placeholder="例如：个人博客、测试 API"></div>' +
+      '<button id="sTunnelBtn">确认开通（14 点 / 年）</button>' +
+      '<div class="s-msg" id="sTunnelMsg"></div></div>' +
+      '<a class="s-back" href="/account/">← 返回个人中心</a></div>';
+    document.getElementById('sTunnelBtn').addEventListener('click', function () {
+      var sub = document.getElementById('sTunnelSub').value.trim().toLowerCase();
+      var target = document.getElementById('sTunnelTarget').value.trim();
+      var note = document.getElementById('sTunnelNote').value.trim();
+      var msg = document.getElementById('sTunnelMsg');
+      if (!sub) { msg.textContent = '请输入子域名'; return; }
+      if (!/^[a-z0-9][a-z0-9-]{1,30}$/.test(sub)) { msg.textContent = '子域名格式不正确（小写字母/数字/连字符，不能以连字符开头）'; return; }
+      if (!target) { msg.textContent = '请输入目标地址'; return; }
+      msg.textContent = '正在提交…';
+      fetch(AUTH + '/auth/service-order', { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token }, body: JSON.stringify({ service_type: 'tunnel', subdomain: sub, target: target, note: note }) })
         .then(function (r) { return r.json(); })
         .then(function (d) { if (!d.ok) { msg.textContent = d.error; return; } msg.textContent = '✅ ' + d.msg; setTimeout(function () { location.href = '/account/'; }, 1500); })
         .catch(function () { msg.textContent = '网络错误'; });
