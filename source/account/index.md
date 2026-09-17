@@ -107,8 +107,10 @@ aside: false
 .badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:12px}
 .badge.ok{background:#d1fae5;color:#059669}
 .badge.bad{background:#fee2e2;color:#dc2626}
+.badge.warn{background:#fef3c7;color:#d97706}
 [data-theme="dark"] .badge.ok{background:#064e3b;color:#34d399}
 [data-theme="dark"] .badge.bad{background:#450a0a;color:#f87171}
+[data-theme="dark"] .badge.warn{background:#451a03;color:#fbbf24}
 .a-empty{font-size:13px;color:#9ca3af;padding:16px 0}
 .mon-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .mon-card{background:var(--card-bg,#fff);border:1px solid var(--border-color,#e5e7eb);border-radius:10px;padding:16px}
@@ -707,6 +709,7 @@ aside: false
           '<div class="admin-menu" data-page="monitor" id="monParent">📊 服务监控 <span style="float:right">▸</span></div>' +
           '<div id="monSub" style="display:none">' +
             '<div class="admin-sub" data-page="monitor-email">📧 邮箱服务</div>' +
+            '<div class="admin-sub" data-page="monitor-tunnel">🔗 域名隧道</div>' +
             '<div class="admin-sub" data-page="monitor-digital">🤖 数字人聊天</div>' +
             '<div class="admin-sub" data-page="monitor-daily">📰 每日日报</div>' +
             '<div class="admin-sub" data-page="monitor-gateway">🌐 AI 网关</div>' +
@@ -749,6 +752,7 @@ aside: false
     if (page === 'users') usersPage(main);
     else if (page === 'monitor') monitorPage(main);
     else if (page === 'monitor-email') monitorServicePage(main, 'email');
+    else if (page === 'monitor-tunnel') monitorServicePage(main, 'tunnel');
     else if (page === 'monitor-digital') monitorServicePage(main, 'digital');
     else if (page === 'monitor-daily') monitorServicePage(main, 'daily');
     else if (page === 'monitor-gateway') monitorServicePage(main, 'gateway');
@@ -759,9 +763,15 @@ aside: false
     else if (page === 'me') render(curUser, main);
   }
 
+  // 解析 tunnel detail JSON
+  function parseTunnelDetail(detail) {
+    try { return JSON.parse(detail || '{}'); } catch (e) { return {}; }
+  }
+
   // 单服务监控：用户列表 + token（成本占位）
   function monitorServicePage(main, type) {
-    var names = { email: '📧 邮箱服务', digital: '🤖 数字人聊天', daily: '📰 每日日报', gateway: '🌐 AI 网关' };
+    var names = { email: '📧 邮箱服务', tunnel: '🔗 域名隧道', digital: '🤖 数字人聊天', daily: '📰 每日日报', gateway: '🌐 AI 网关' };
+    var isSvc = (type === 'email' || type === 'tunnel' || type === 'daily');
     main.innerHTML = '<h3>' + names[type] + '</h3><div class="a-load">加载中…</div>';
     Promise.all([
       adminApi('/admin/monitor/' + type),
@@ -782,27 +792,70 @@ aside: false
           '<div class="mon-name" style="margin-top:4px;font-size:12px;color:#6b7280;font-weight:400">利润率：(设定汇率 × 倍率) ÷ 真实汇率 = <b id="cfgProfit" data-real="' + (cfg.real_rate || '') + '" style="color:#425aef">' + profitTxt + '</b></div>' +
           '<div class="mon-name" style="margin-top:4px;color:#9ca3af;font-size:12px;font-weight:400">保存后用户端定价表按新值计算</div></div>';
       }
-      html += '<div class="mon-card" style="margin-bottom:12px"><div class="mon-name">Token 消耗</div><div class="mon-items">' +
-        '<span>输入：<b>' + d.tokens.input + '</b></span><span>输出：<b>' + d.tokens.output + '</b></span>' +
-        (d.calls !== undefined ? '<span>调用次数：<b>' + d.calls + '</b></span>' : '') +
-        '</div></div>';
-      if (d.users && d.users.length) {
-        html += '<table class="a-table"><tr><th>用户</th><th>状态</th><th>到期</th><th>操作</th></tr>';
-        d.users.forEach(function (u) {
-          var st = u.status === 'active' ? '<span class="badge ok">开通</span>' : u.status === 'paused' ? '<span class="badge bad">暂停</span>' : '<span class="badge bad">' + esc(u.status) + '</span>';
-          var toggleBtn = '<button class="a-btn ' + (u.status === 'active' ? 'danger' : 'primary') + '" data-monitor-toggle data-id="' + u.service_id + '" data-status="' + (u.status === 'active' ? 'paused' : 'active') + '">' + (u.status === 'active' ? '暂停' : '恢复') + '</button>';
-          html += '<tr><td>' + esc(u.nickname || '') + ' ' + esc(u.email) + '</td><td>' + st + '</td><td>' + fmtTime(u.expires_at) + '</td><td>' + toggleBtn + '</td></tr>';
-        });
-        html += '</table>';
-      } else if (d.users && !d.users.length) {
-        html += '<div class="a-empty">暂无该服务用户</div>';
+      if (isSvc) {
+        var pending = d.users ? d.users.filter(function (u) { return u.status === 'pending'; }).length : 0;
+        var active = d.users ? d.users.filter(function (u) { return u.status === 'active'; }).length : 0;
+        html += '<div class="mon-card" style="margin-bottom:12px"><div class="mon-name">服务概览</div><div class="mon-items">' +
+          '<span>已开通：<b>' + active + '</b></span><span>待确认：<b style="color:#' + (pending ? 'd97706' : '6b7280') + '">' + pending + '</b></span>' +
+          '</div></div>';
       } else {
-        html += '<div class="a-empty">暂无用户数据</div>';
+        html += '<div class="mon-card" style="margin-bottom:12px"><div class="mon-name">Token 消耗</div><div class="mon-items">' +
+          '<span>输入：<b>' + d.tokens.input + '</b></span><span>输出：<b>' + d.tokens.output + '</b></span>' +
+          (d.calls !== undefined ? '<span>调用次数：<b>' + d.calls + '</b></span>' : '') +
+          '</div></div>';
+      }
+      if (d.users && d.users.length) {
+        if (type === 'email') {
+          html += '<table class="a-table"><tr><th>用户</th><th>邮箱地址</th><th>状态</th><th>到期</th><th>操作</th></tr>';
+          d.users.forEach(function (u) {
+            var st = u.status === 'active' ? '<span class="badge ok">开通</span>' : u.status === 'paused' ? '<span class="badge bad">暂停</span>' : '<span class="badge warn">待确认</span>';
+            var btns = '';
+            if (u.status === 'pending') btns += '<button class="a-btn primary" data-confirm data-id="' + u.service_id + '">确认开通</button> ';
+            btns += '<button class="a-btn ' + (u.status === 'active' ? 'danger' : 'primary') + '" data-monitor-toggle data-id="' + u.service_id + '" data-status="' + (u.status === 'active' ? 'paused' : 'active') + '">' + (u.status === 'active' ? '暂停' : (u.status === 'paused' ? '恢复' : '重开')) + '</button>';
+            html += '<tr><td>' + esc(u.nickname || '') + '<br><span style="color:#9ca3af;font-size:12px">' + esc(u.email) + '</span></td><td style="font-weight:600;color:#425aef">' + esc(u.detail || '—') + '</td><td>' + st + '</td><td>' + fmtTime(u.expires_at) + '</td><td>' + btns + '</td></tr>';
+          });
+        } else if (type === 'tunnel') {
+          html += '<table class="a-table"><tr><th>用户</th><th>子域名</th><th>目标地址</th><th>状态</th><th>到期</th><th>操作</th></tr>';
+          d.users.forEach(function (u) {
+            var td = parseTunnelDetail(u.detail);
+            var st = u.status === 'active' ? '<span class="badge ok">开通</span>' : u.status === 'paused' ? '<span class="badge bad">暂停</span>' : '<span class="badge warn">待确认</span>';
+            var btns = '';
+            if (u.status === 'pending') btns += '<button class="a-btn primary" data-confirm data-id="' + u.service_id + '">确认开通</button> ';
+            btns += '<button class="a-btn ' + (u.status === 'active' ? 'danger' : 'primary') + '" data-monitor-toggle data-id="' + u.service_id + '" data-status="' + (u.status === 'active' ? 'paused' : 'active') + '">' + (u.status === 'active' ? '暂停' : (u.status === 'paused' ? '恢复' : '重开')) + '</button>';
+            html += '<tr><td>' + esc(u.nickname || '') + '<br><span style="color:#9ca3af;font-size:12px">' + esc(u.email) + '</span></td><td style="font-weight:600;color:#425aef">' + esc(td.domain || '—') + '</td><td style="font-size:12px;color:#6b7280">' + esc(td.target || '—') + (td.note ? '<br><span style="color:#9ca3af">' + esc(td.note) + '</span>' : '') + '</td><td>' + st + '</td><td>' + fmtTime(u.expires_at) + '</td><td>' + btns + '</td></tr>';
+          });
+        } else {
+          html += '<table class="a-table"><tr><th>用户</th><th>状态</th><th>到期</th><th>操作</th></tr>';
+          d.users.forEach(function (u) {
+            var st = u.status === 'active' ? '<span class="badge ok">开通</span>' : u.status === 'paused' ? '<span class="badge bad">暂停</span>' : '<span class="badge bad">' + esc(u.status) + '</span>';
+            var btns = '';
+            if (u.status === 'pending') btns += '<button class="a-btn primary" data-confirm data-id="' + u.service_id + '">确认开通</button> ';
+            btns += '<button class="a-btn ' + (u.status === 'active' ? 'danger' : 'primary') + '" data-monitor-toggle data-id="' + u.service_id + '" data-status="' + (u.status === 'active' ? 'paused' : 'active') + '">' + (u.status === 'active' ? '暂停' : '恢复') + '</button>';
+            html += '<tr><td>' + esc(u.nickname || '') + ' ' + esc(u.email) + '</td><td>' + st + '</td><td>' + fmtTime(u.expires_at) + '</td><td>' + btns + '</td></tr>';
+          });
+        }
+        html += '</table>';
+      } else {
+        html += '<div class="a-empty">暂无该服务用户</div>';
       }
       main.innerHTML = html;
       if (type === 'gateway') bindGatewayConfig(main);
       bindMonitorToggle(main);
+      bindServiceConfirm(main);
     }).catch(function () { main.innerHTML = '<h3>' + names[type] + '</h3><div class="a-empty">网络错误</div>'; });
+  }
+
+  // 确认开通 pending 服务
+  function bindServiceConfirm(main) {
+    main.querySelectorAll('[data-confirm]').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var id = btn.getAttribute('data-id');
+        if (!confirm('确认开通该服务？到期时间将设为 1 年后。')) return;
+        adminApi('/admin/service-confirm', { method: 'POST', body: JSON.stringify({ service_id: parseInt(id) }) })
+          .then(function (d) { toast(d.ok ? '已确认开通' : (d.error || '操作失败')); location.reload(); })
+          .catch(function () { toast('网络错误'); });
+      });
+    });
   }
 
   function bindGatewayConfig(main) {
