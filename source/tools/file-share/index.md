@@ -13,6 +13,11 @@ comments: false
     <button class="fs-tab" onclick="switchTab('code')">🔑 提取码</button>
   </div>
 
+  <div class="field" style="margin-top:14px">
+    <label>管理员密码（可选）</label>
+    <input type="password" id="fs-admin-pw" placeholder="留空 = 普通上传（≤50MB）；填写后免此限制" autocomplete="off">
+  </div>
+
   <div id="panel-email" class="panel active">
     <div class="field">
       <label>选择文件</label>
@@ -107,8 +112,11 @@ function fi(inp, id) {
     total += inp.files[i].size;
     names.push(inp.files[i].name);
   }
-  if (total > 50 * 1024 * 1024) { el.innerHTML = '<span style="color:#e53935">文件总大小超过50MB限制</span>'; inp.value = ''; return; }
-  el.innerHTML = '<strong>' + inp.files.length + ' 个文件</strong>，共 ' + sz(total) + '<br>' + names.join('、');
+  var pwEl = document.getElementById('fs-admin-pw');
+  var isAdmin = pwEl && pwEl.value.trim() !== '';
+  if (!isAdmin && total > 50 * 1024 * 1024) { el.innerHTML = '<span style="color:#e53935">文件总大小超过50MB限制（填管理员密码可解除）</span>'; inp.value = ''; return; }
+  if (isAdmin && total > 100 * 1024 * 1024) { el.innerHTML = '<span style="color:#e53935">超过 100MB 平台硬上限</span>'; inp.value = ''; return; }
+  el.innerHTML = '<strong>' + inp.files.length + ' 个文件</strong>，共 ' + sz(total) + '<br>' + names.join('、') + (isAdmin ? '<br><span style="color:#425aef">管理员模式：不限 50MB</span>' : '');
 }
 
 async function sendEmail() {
@@ -121,6 +129,8 @@ async function sendEmail() {
   var fd = new FormData();
   for (var fi = 0; fi < files.length; fi++) fd.append('file', files[fi]);
   fd.append('email', e);
+  var _pw1 = document.getElementById('fs-admin-pw');
+  if (_pw1 && _pw1.value.trim()) fd.append('password', _pw1.value.trim());
   try {
     var r = await fetch(API + '/api/send-email', { method: 'POST', body: fd });
     var d = await r.json();
@@ -137,6 +147,8 @@ async function upFile() {
   var fd = new FormData();
   for (var fi = 0; fi < files.length; fi++) fd.append('file', files[fi]);
   fd.append('maxDownloads', _dc);
+  var _pw2 = document.getElementById('fs-admin-pw');
+  if (_pw2 && _pw2.value.trim()) fd.append('password', _pw2.value.trim());
   try {
     var r = await fetch(API + '/api/upload', { method: 'POST', body: fd });
     var d = await r.json();
