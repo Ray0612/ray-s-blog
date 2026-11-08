@@ -1,4 +1,8 @@
 # Cloudflare Pages cache policy
+# HTML: 10 min browser cache — repeat visits in a session skip the network entirely
+/*
+  Cache-Control: public, max-age=600
+
 # images: 30 days (filenames have no hash, leave room to replace assets)
 /img/*
   Cache-Control: public, max-age=2592000
