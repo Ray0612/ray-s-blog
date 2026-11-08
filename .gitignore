@@ -6,3 +6,8 @@ node_modules/
 public/
 .deploy*/
 _multiconfig.yml
+
+# local work artifacts (not tracked)
+_assets-origin/
+_tools/
+_webp-list.json

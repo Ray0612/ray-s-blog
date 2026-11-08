@@ -1,0 +1,10 @@
+# Cloudflare Pages cache policy
+# images: 30 days (filenames have no hash, leave room to replace assets)
+/img/*
+  Cache-Control: public, max-age=2592000
+
+# theme css / js: 7 days
+/css/*
+  Cache-Control: public, max-age=604800
+/js/*
+  Cache-Control: public, max-age=604800

@@ -99,6 +99,7 @@ pagination_dir: page
 # Include / Exclude file(s)
 ## include:/exclude: options only apply to the 'source/' folder
 include:
+  - _headers
 exclude:
 ignore:
 
@@ -106,6 +107,11 @@ ignore:
 ## Plugins: https://hexo.io/plugins/
 ## Themes: https://hexo.io/themes/
 theme: butterfly
+
+# 静态资源主机（形态 1）
+## HTML 仍由 Cloudflare Pages 提供，只有 /img/bg/ 的大图走阿里云 VPS 直连。
+## 留空 = 全部从当前站点取（本地预览时可留空）
+static_host: https://static.ray2.asia:6443
 
 # Deployment
 ## Docs: https://hexo.io/docs/one-command-deployment
